@@ -78,12 +78,7 @@ public class ChessPiece {
             }
         }
         else if (type == PieceType.ROOK) {
-            for (int r = 1; r < 9; r++) {
-                moves.add(new ChessMove(myPosition, new ChessPosition(r, myPosition.getColumn()), null));
-            }
-            for (int c = 1; c < 9; c++) {
-                moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), c), null));
-            }
+            addRookMoves(moves, myPosition);
         }
         else if (type == PieceType.KNIGHT) {
             for (int r = 1; r < 9; r++) {
@@ -95,13 +90,11 @@ public class ChessPiece {
             }
         }
         else if (type == PieceType.BISHOP) {
-            for (int r = 1; r < 9; r++) {
-                for (int c = 1; c < 9; c++) {
-                    if (Math.abs(myPosition.getRow() - r) == Math.abs(myPosition.getColumn() - c)) {
-                        moves.add(new ChessMove(myPosition, new ChessPosition(r, c), null));
-                    }
-                }
-            }
+            addBishopMoves(moves, myPosition);
+        }
+        else if (type == PieceType.QUEEN) {
+            addRookMoves(moves, myPosition);
+            addBishopMoves(moves, myPosition);
         }
         return moves;
     }
@@ -113,6 +106,25 @@ public class ChessPiece {
             moves.add(new ChessMove(myPosition, endPosition, PieceType.ROOK));
             moves.add(new ChessMove(myPosition, endPosition, PieceType.KNIGHT));
             moves.add(new ChessMove(myPosition, endPosition, PieceType.BISHOP));
+        }
+    }
+
+    public void addRookMoves(Collection<ChessMove> moves, ChessPosition myPosition) {
+        for (int r = 1; r < 9; r++) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(r, myPosition.getColumn()), null));
+        }
+        for (int c = 1; c < 9; c++) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), c), null));
+        }
+    }
+
+    public void addBishopMoves(Collection<ChessMove> moves, ChessPosition myPosition) {
+        for (int r = 1; r < 9; r++) {
+            for (int c = 1; c < 9; c++) {
+                if (Math.abs(myPosition.getRow() - r) == Math.abs(myPosition.getColumn() - c)) {
+                    moves.add(new ChessMove(myPosition, new ChessPosition(r, c), null));
+                }
+            }
         }
     }
 }
