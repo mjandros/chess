@@ -96,6 +96,12 @@ public class ChessPiece {
             addRookMoves(moves, myPosition);
             addBishopMoves(moves, myPosition);
         }
+        else if (type == PieceType.KING) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()), null));
+            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()), null));
+            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1), null));
+            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1), null));
+        }
         return moves;
     }
 
