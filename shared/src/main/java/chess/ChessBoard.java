@@ -1,6 +1,7 @@
 package chess;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -12,7 +13,14 @@ public class ChessBoard {
 
     ChessPiece[][] board;
     public ChessBoard() {
-        resetBoard();
+        board = new ChessPiece[][]{{null, null, null, null, null, null, null, null},
+                                {null, null, null, null, null, null, null, null},
+                                {null, null, null, null, null, null, null, null},
+                                {null, null, null, null, null, null, null, null},
+                                {null, null, null, null, null, null, null, null},
+                                {null, null, null, null, null, null, null, null},
+                                {null, null, null, null, null, null, null, null},
+                                {null, null, null, null, null, null, null, null}};
     }
 
     /**
@@ -82,5 +90,22 @@ public class ChessBoard {
         addPiece(new ChessPosition(7, 6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         addPiece(new ChessPosition(7, 7), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         addPiece(new ChessPosition(7, 8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Arrays.equals(board, that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(board);
     }
 }
