@@ -3,6 +3,7 @@ package chess;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
+import java.lang.Math;
 
 /**
  * Represents a single chess piece
@@ -85,7 +86,22 @@ public class ChessPiece {
             }
         }
         else if (type == PieceType.KNIGHT) {
-
+            for (int r = 1; r < 9; r++) {
+                for (int c = 1; c < 9; c++) {
+                    if ((Math.abs(myPosition.getRow() - r) == 1 && Math.abs(myPosition.getColumn() - c) == 2) || (Math.abs(myPosition.getRow() - r) == 2 && Math.abs(myPosition.getColumn() - c) == 1)) {
+                        moves.add(new ChessMove(myPosition, new ChessPosition(r, c), null));
+                    }
+                }
+            }
+        }
+        else if (type == PieceType.BISHOP) {
+            for (int r = 1; r < 9; r++) {
+                for (int c = 1; c < 9; c++) {
+                    if (Math.abs(myPosition.getRow() - r) == Math.abs(myPosition.getColumn() - c)) {
+                        moves.add(new ChessMove(myPosition, new ChessPosition(r, c), null));
+                    }
+                }
+            }
         }
         return moves;
     }
