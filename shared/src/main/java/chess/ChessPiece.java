@@ -93,7 +93,7 @@ public class ChessPiece {
             for (int r = 1; r < 9; r++) {
                 for (int c = 1; c < 9; c++) {
                     if ((Math.abs(myPosition.getRow() - r) == 1 && Math.abs(myPosition.getColumn() - c) == 2) || (Math.abs(myPosition.getRow() - r) == 2 && Math.abs(myPosition.getColumn() - c) == 1)) {
-                        moves.add(new ChessMove(myPosition, new ChessPosition(r, c), null));
+                        addMove(board, moves, myPosition, new ChessPosition(r, c));
                     }
                 }
             }
@@ -198,14 +198,6 @@ public class ChessPiece {
                 break;
             }
         }
-//        for (int r = myPosition.getRow() - 1; r > 0; r--) {
-//            if (addMoveInDiagonal(board, moves, myPosition, r)) {
-//                break;
-//            }
-//        }
-        for (ChessMove c : moves) {
-            System.out.printf("{%d, %d}\n", c.endPosition.getRow(), c.endPosition.getColumn());
-        }
     }
 
     public boolean addMoveInDiagonal(ChessBoard board, Collection<ChessMove> moves, ChessPosition myPosition, int r) {
@@ -230,9 +222,12 @@ public class ChessPiece {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
+            //System.out.println(o);
             return false;
         }
         ChessPiece that = (ChessPiece) o;
+        //System.out.printf("%s %s\n", pieceColor, type);
+        //System.out.printf("%s %s\n", that.pieceColor, that.type);
         return pieceColor == that.pieceColor && type == that.type;
     }
 
