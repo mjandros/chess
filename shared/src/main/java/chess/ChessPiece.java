@@ -200,34 +200,15 @@ public class ChessPiece {
         }
     }
 
-    public boolean addMoveInDiagonal(ChessBoard board, Collection<ChessMove> moves, ChessPosition myPosition, int r) {
-        for (int c = myPosition.getColumn() + 1; c < 9; c++) {
-            ChessPosition pos = new ChessPosition(r, c);
-            if (addMoveInLine(board, moves, myPosition, pos)) {
-                return true;
-            }
-        }
-        for (int c = myPosition.getColumn() - 1; c > 0; c--) {
-            ChessPosition pos = new ChessPosition(r, c);
-            if (addMoveInLine(board, moves, myPosition, pos)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
-            //System.out.println(o);
             return false;
         }
         ChessPiece that = (ChessPiece) o;
-        //System.out.printf("%s %s\n", pieceColor, type);
-        //System.out.printf("%s %s\n", that.pieceColor, that.type);
         return pieceColor == that.pieceColor && type == that.type;
     }
 
