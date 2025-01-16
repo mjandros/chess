@@ -162,17 +162,37 @@ public class ChessPiece {
     }
 
     public void addBishopMoves(ChessBoard board, Collection<ChessMove> moves, ChessPosition myPosition) {
-        for (int r = myPosition.getRow() + 1; r < 9; r++) {
-            System.out.println("first loop");
-            if (addMoveInDiagonal(board, moves, myPosition, r)) {
+        for (int r = myPosition.getRow() + 1, c = myPosition.getColumn() + 1; r < 9 && c < 9; c++, r++) {
+            ChessPosition pos = new ChessPosition(r, c);
+            if (addMoveInLine(board, moves, myPosition, pos)) {
                 break;
             }
         }
-        for (int r = myPosition.getRow() - 1; r > 0; r--) {
-            System.out.println("second loop");
-            if (addMoveInDiagonal(board, moves, myPosition, r)) {
+        for (int r = myPosition.getRow() + 1, c = myPosition.getColumn() - 1; r < 9 && c > 0; c--, r++) {
+            ChessPosition pos = new ChessPosition(r, c);
+            if (addMoveInLine(board, moves, myPosition, pos)) {
                 break;
             }
+        }
+        for (int r = myPosition.getRow() - 1, c = myPosition.getColumn() + 1; r > 0 && c < 9; c++, r--) {
+            ChessPosition pos = new ChessPosition(r, c);
+            if (addMoveInLine(board, moves, myPosition, pos)) {
+                break;
+            }
+        }
+        for (int r = myPosition.getRow() - 1, c = myPosition.getColumn() - 1; r > 0 && c > 0; c--, r--) {
+            ChessPosition pos = new ChessPosition(r, c);
+            if (addMoveInLine(board, moves, myPosition, pos)) {
+                break;
+            }
+        }
+//        for (int r = myPosition.getRow() - 1; r > 0; r--) {
+//            if (addMoveInDiagonal(board, moves, myPosition, r)) {
+//                break;
+//            }
+//        }
+        for (ChessMove c : moves) {
+            System.out.printf("{%d, %d}\n", c.endPosition.getRow(), c.endPosition.getColumn());
         }
     }
 
