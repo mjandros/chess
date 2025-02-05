@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -49,7 +51,51 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        if (board.getPiece(startPosition) == null) {
+            return null;
+        }
+        ChessPiece piece = board.getPiece(startPosition);
+        List<ChessMove> possibleMoves = (List<ChessMove>) piece.pieceMoves(board, startPosition);
+        ChessGame.TeamColor enemyTeam = TeamColor.WHITE;
+        if (piece.getTeamColor() == TeamColor.WHITE) {
+            enemyTeam = TeamColor.BLACK;
+        }
+        ChessBoard tempBoard = board;
+        setBoard(tempBoard);
+        int kingPosR = 1;
+        int kingPosC = 1;
+        for (int r = 1; r < 9; r++) {
+            for (int c = 1; c < 9; c++) {
+                ChessPosition pos = new ChessPosition(r, c);
+                if (board.getPiece(pos) != null && board.getPiece(pos).getTeamColor() != enemyTeam && board.getPiece(pos).getPieceType() == ChessPiece.PieceType.KING) {
+                    kingPosR = r;
+                    kingPosC = c;
+                }
+            }
+        }
+        ChessPosition kingPos = new ChessPosition(kingPosR, kingPosC);
+        for (ChessMove cm : possibleMoves) {
+            try {
+                makeMove(cm);
+            } catch (InvalidMoveException e) {
+                continue;
+            }
+            for (int r = 1; r < 9; r++) {
+                for (int c = 1; c < 9; c++) {
+                    ChessPosition pos = new ChessPosition(r, c);
+                    if (tempBoard.getPiece(pos) != null && tempBoard.getPiece(pos).getTeamColor() == enemyTeam) {
+                        ChessPiece p = tempBoard.getPiece(pos);
+                        List<ChessMove> moves = (List<ChessMove>) p.pieceMoves(tempBoard, pos);
+                        for (ChessMove move : moves) {
+                            if (move.getEndPosition() == kingPos) {
+                                possibleMoves.remove(cm);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return possibleMoves;
     }
 
     /**
@@ -59,7 +105,16 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        List<ChessMove> validMoves = (List<ChessMove>) validMoves(move.getStartPosition());
+        if (!validMoves.contains(move)) {
+            throw new InvalidMoveException();
+        }
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        if (getTeamTurn() != piece.getTeamColor()) {
+            throw new InvalidMoveException();
+        }
+        board.addPiece(move.getStartPosition(), null);
+        board.addPiece(move.getEndPosition(), piece);
     }
 
     /**
