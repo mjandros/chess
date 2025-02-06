@@ -124,7 +124,12 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
         board.addPiece(move.getStartPosition(), null);
-        board.addPiece(move.getEndPosition(), piece);
+        if (move.getPromotionPiece() == null) {
+            board.addPiece(move.getEndPosition(), piece);
+        }
+        else {
+            board.addPiece(move.getEndPosition(), new ChessPiece(turn, move.getPromotionPiece()));
+        }
         if (turn == TeamColor.WHITE) {
             turn = TeamColor.BLACK;
         }
