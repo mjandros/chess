@@ -64,7 +64,6 @@ public class ChessGame {
             ChessBoard tempBoard = new ChessBoard(saveBoard);
             setBoard(tempBoard);
             validMoves.add(cm);
-            //System.out.printf("start: {%d, %d}; end: {%d, %d}\n", cm.getStartPosition().getRow(), cm.getStartPosition().getColumn(), cm.getEndPosition().getRow(), cm.getEndPosition().getColumn());
             board.addPiece(startPosition, null);
             board.addPiece(cm.getEndPosition(), piece);
             if (isInCheck(piece.getTeamColor())) {
@@ -127,18 +126,14 @@ public class ChessGame {
             }
         }
         ChessPosition kingPos = new ChessPosition(kingPosR, kingPosC);
-        //System.out.printf("kingPos: {%d, %d}\n", kingPosR, kingPosC);
         for (int r = 1; r < 9; r++) {
             for (int c = 1; c < 9; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
                 if (board.getPiece(pos) != null && board.getPiece(pos).getTeamColor() != teamColor) {
                     ChessPiece p = board.getPiece(pos);
-                    //System.out.printf("Checking %s %s at {%d, %d}\n", p.getTeamColor(), p.getPieceType(), r, c);
                     List<ChessMove> moves = (List<ChessMove>) p.pieceMoves(board, pos);
                     for (ChessMove move : moves) {
-                        //System.out.printf("Checking {%d, %d}\n", move.getEndPosition().getRow(), move.getEndPosition().getColumn());
                         if (move.getEndPosition().equals(kingPos)) {
-                            //System.out.println("King is in check.");
                             return true;
                         }
                     }
