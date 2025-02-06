@@ -23,6 +23,20 @@ public class ChessBoard {
                                 {null, null, null, null, null, null, null, null}};
     }
 
+    public ChessBoard(ChessBoard otherBoard) {
+        board = new ChessPiece[][]{{null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}};
+        for (int r = 0; r < 8; r++) {
+            System.arraycopy(otherBoard.board[r], 0, this.board[r], 0, 8);
+        }
+    }
+
     /**
      * Adds a chess piece to the chessboard
      *

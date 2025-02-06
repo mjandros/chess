@@ -56,46 +56,53 @@ public class ChessGame {
         }
         ChessPiece piece = board.getPiece(startPosition);
         List<ChessMove> possibleMoves = (List<ChessMove>) piece.pieceMoves(board, startPosition);
+        List<ChessMove> validMoves = new ArrayList<>();
         ChessGame.TeamColor enemyTeam = TeamColor.WHITE;
         if (piece.getTeamColor() == TeamColor.WHITE) {
             enemyTeam = TeamColor.BLACK;
         }
-        ChessBoard tempBoard = board;
-        setBoard(tempBoard);
-        int kingPosR = 1;
-        int kingPosC = 1;
-        for (int r = 1; r < 9; r++) {
-            for (int c = 1; c < 9; c++) {
-                ChessPosition pos = new ChessPosition(r, c);
-                if (board.getPiece(pos) != null && board.getPiece(pos).getTeamColor() != enemyTeam && board.getPiece(pos).getPieceType() == ChessPiece.PieceType.KING) {
-                    kingPosR = r;
-                    kingPosC = c;
-                }
-            }
-        }
-        ChessPosition kingPos = new ChessPosition(kingPosR, kingPosC);
         for (ChessMove cm : possibleMoves) {
-            try {
-                makeMove(cm);
-            } catch (InvalidMoveException e) {
-                continue;
-            }
+            ChessBoard saveBoard = new ChessBoard(board);
+            ChessBoard tempBoard = new ChessBoard(saveBoard);
+            setBoard(tempBoard);
+            validMoves.add(cm);
+            //System.out.printf("start: {%d, %d}; end: {%d, %d}\n", cm.getStartPosition().getRow(), cm.getStartPosition().getColumn(), cm.getEndPosition().getRow(), cm.getEndPosition().getColumn());
+            board.addPiece(startPosition, null);
+            board.addPiece(cm.getEndPosition(), piece);
+            int kingPosR = 1;
+            int kingPosC = 1;
             for (int r = 1; r < 9; r++) {
                 for (int c = 1; c < 9; c++) {
                     ChessPosition pos = new ChessPosition(r, c);
-                    if (tempBoard.getPiece(pos) != null && tempBoard.getPiece(pos).getTeamColor() == enemyTeam) {
-                        ChessPiece p = tempBoard.getPiece(pos);
+                    if (board.getPiece(pos) != null && board.getPiece(pos).getTeamColor() != enemyTeam && board.getPiece(pos).getPieceType() == ChessPiece.PieceType.KING) {
+                        kingPosR = r;
+                        kingPosC = c;
+                    }
+                }
+            }
+            ChessPosition kingPos = new ChessPosition(kingPosR, kingPosC);
+            //System.out.printf("kingPos: {%d, %d}\n", kingPosR, kingPosC);
+            for (int r = 1; r < 9; r++) {
+                for (int c = 1; c < 9; c++) {
+                    ChessPosition pos = new ChessPosition(r, c);
+                    if (board.getPiece(pos) != null && board.getPiece(pos).getTeamColor() == enemyTeam) {
+                        ChessPiece p = board.getPiece(pos);
+                        //System.out.printf("Checking %s %s at {%d, %d}\n", p.getTeamColor(), p.getPieceType(), r, c);
                         List<ChessMove> moves = (List<ChessMove>) p.pieceMoves(tempBoard, pos);
                         for (ChessMove move : moves) {
-                            if (move.getEndPosition() == kingPos) {
-                                possibleMoves.remove(cm);
+                            //System.out.printf("Checking {%d, %d}\n", move.getEndPosition().getRow(), move.getEndPosition().getColumn());
+                            if (move.getEndPosition().equals(kingPos)) {
+                                //System.out.println("Move is invalid. Removing.");
+                                validMoves.remove(cm);
+                                break;
                             }
                         }
                     }
                 }
             }
+            setBoard(saveBoard);
         }
-        return possibleMoves;
+        return validMoves;
     }
 
     /**
@@ -106,6 +113,9 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         List<ChessMove> validMoves = (List<ChessMove>) validMoves(move.getStartPosition());
+        if (validMoves == null) {
+            throw new InvalidMoveException();
+        }
         if (!validMoves.contains(move)) {
             throw new InvalidMoveException();
         }
