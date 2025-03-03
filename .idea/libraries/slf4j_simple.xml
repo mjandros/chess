@@ -2,13 +2,8 @@
   <library name="slf4j.simple" type="repository">
     <properties maven-id="org.slf4j:slf4j-simple:1.7.36" />
     <CLASSES>
-<<<<<<< HEAD
       <root url="jar://$PROJECT_DIR$/server/lib/slf4j-simple-1.7.36.jar!/" />
       <root url="jar://$PROJECT_DIR$/server/lib/slf4j-api-1.7.36.jar!/" />
-=======
-      <root url="jar://$PROJECT_DIR$/slf4j-simple-1.7.36.jar!/" />
-      <root url="jar://$PROJECT_DIR$/slf4j-api-1.7.36.jar!/" />
->>>>>>> 125408c8e2b4b8998907897e8b444f79ef22290a
     </CLASSES>
     <JAVADOC />
     <SOURCES />
