@@ -3,7 +3,7 @@ package server;
 import handler.UserHandler;
 import spark.*;
 
-import static spark.Spark.post;
+import static spark.Spark.*;
 
 public class Server {
 
@@ -35,5 +35,7 @@ public class Server {
 
     private void registerEndpoints() {
         post("/user", userHandler::register);
+        post("/session", userHandler::login);
+        delete("/session", userHandler::logout);
     }
 }
