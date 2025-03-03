@@ -1,6 +1,6 @@
 package server;
 
-import handler.UserHandler;
+import handler.*;
 import spark.*;
 
 import static spark.Spark.*;
@@ -8,9 +8,11 @@ import static spark.Spark.*;
 public class Server {
 
     private final UserHandler userHandler;
+    private final GameHandler gameHandler;
 
     public Server() {
         userHandler = new UserHandler();
+        gameHandler = new GameHandler();
     }
 
     public int run(int desiredPort) {
@@ -34,8 +36,15 @@ public class Server {
     }
 
     private void registerEndpoints() {
+
+        //User Endpoints
         post("/user", userHandler::register);
         post("/session", userHandler::login);
         delete("/session", userHandler::logout);
+
+        //Game Endpoints
+        get("/game", gameHandler::listGames);
+        post("/game", gameHandler::createGame);
+        put("/game", gameHandler::joinGame);
     }
 }

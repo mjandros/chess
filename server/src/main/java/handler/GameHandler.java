@@ -2,48 +2,49 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import service.UserService;
 import service.requests.*;
 import service.results.*;
 import spark.Response;
 import spark.Request;
 import spark.Response;
-import service.UserService;
+import service.GameService;
 
-public class UserHandler {
+public class GameHandler {
 
     private final Gson serializer;
-    private final UserService userService;
+    private final GameService gameService;
 
-    public UserHandler() {
+    public GameHandler() {
         serializer = new Gson();
-        userService = new UserService();
+        gameService = new GameService();
     }
 
-    public RegisterResult register(Request request, Response response) {
+    public ListGamesResult listGames(Request request, Response response) {
         try {
-            return userService.register(serializer.fromJson(request.body(), RegisterRequest.class));
+            return gameService.listGames(serializer.fromJson(request.body(), ListGamesRequest.class));
         } catch (JsonSyntaxException e) {
             System.err.println("Invalid JSON format: " + e.getMessage());
             return null;
         }
     }
 
-    public LoginResult login(Request request, Response response) {
+    public CreateGameResult createGame(Request request, Response response) {
         try {
-            return userService.login(serializer.fromJson(request.body(), LoginRequest.class));
+            return gameService.createGame(serializer.fromJson(request.body(), CreateGameRequest.class));
         } catch (JsonSyntaxException e) {
             System.err.println("Invalid JSON format: " + e.getMessage());
             return null;
         }
     }
 
-    public LogoutResult logout(Request request, Response response) {
+    public JoinGameResult joinGame(Request request, Response response) {
         try {
-            userService.logout(serializer.fromJson(request.body(), LogoutRequest.class));
-            return new LogoutResult();
+            return gameService.joinGame(serializer.fromJson(request.body(), JoinGameRequest.class));
         } catch (JsonSyntaxException e) {
             System.err.println("Invalid JSON format: " + e.getMessage());
             return null;
         }
     }
+
 }
