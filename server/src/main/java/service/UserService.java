@@ -1,12 +1,10 @@
 package service;
 
-import model.UserData;
-import model.AuthData;
+import service.requests.*;
+import service.results.*;
 
 public class UserService {
-    /*public AuthData register(UserData registerRequest) {
-
-    }
-    public AuthData login(UserData loginRequest) {}
-    public void logout(AuthData logoutRequest) {}*/
+//    public RegisterResult register(RegisterRequest registerRequest) {}
+//    public LoginResult login(LoginRequest loginRequest) {}
+//    public void logout(LogoutRequest logoutRequest) {}
 }
