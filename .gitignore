@@ -12,7 +12,6 @@ out/
 ### Chess project ###
 server/**/db.properties
 
-target/
 *.jar
 *.war
 *.ear
