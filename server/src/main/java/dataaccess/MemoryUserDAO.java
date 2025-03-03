@@ -1,4 +1,5 @@
 package dataaccess;
 
-public class MemoryUserDAO {
+
+public class MemoryUserDAO implements UserDAO {
 }

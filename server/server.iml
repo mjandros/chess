@@ -9,11 +9,16 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="shared" />
+    <orderEntry type="module" module-name="shared" exported="" />
     <orderEntry type="library" name="lib" level="project" />
     <orderEntry type="library" name="junit.jupiter" level="project" />
     <orderEntry type="library" name="google.code.gson" level="project" />
+<<<<<<< HEAD
     <orderEntry type="library" name="slf4j.simple" level="project" />
     <orderEntry type="library" name="sparkjava.spark.core" level="project" />
+=======
+    <orderEntry type="library" name="sparkjava.spark.core" level="project" />
+    <orderEntry type="library" name="slf4j.simple" level="project" />
+>>>>>>> 125408c8e2b4b8998907897e8b444f79ef22290a
   </component>
 </module>
