@@ -9,10 +9,12 @@ public class Server {
 
     private final UserHandler userHandler;
     private final GameHandler gameHandler;
+    private final AppHandler appHandler;
 
     public Server() {
         userHandler = new UserHandler();
         gameHandler = new GameHandler();
+        appHandler = new AppHandler();
     }
 
     public int run(int desiredPort) {
@@ -46,5 +48,8 @@ public class Server {
         get("/game", gameHandler::listGames);
         post("/game", gameHandler::createGame);
         put("/game", gameHandler::joinGame);
+
+        //App Endpoints
+        delete("/db", appHandler::clear);
     }
 }
