@@ -46,12 +46,17 @@ public class GameHandler {
         }
     }
 
-    public JoinGameResult joinGame(Request request, Response response) {
+    public String joinGame(Request request, Response response) throws ResponseException {
         try {
-            return gameService.joinGame(serializer.fromJson(request.body(), JoinGameRequest.class));
+            JoinGameResult res = gameService.joinGame(request.headers("authorization"), serializer.fromJson(request.body(), JoinGameRequest.class));
+            response.status(200);
+            return serializer.toJson(res);
         } catch (JsonSyntaxException e) {
-            System.err.println("Invalid JSON format: " + e.getMessage());
-            return null;
+            throw new ResponseException(400, "Error: bad request");
+        } catch (ResponseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseException(500, "Error: " + e.getMessage());
         }
     }
 

@@ -34,8 +34,14 @@ public class MemoryGameDAO implements GameDAO {
         GameData currentGame = games.get(gameID);
         GameData updatedGame;
         if (playerColor.equals("WHITE")) {
+            if (currentGame.whiteUsername() != null) {
+                throw new DataAccessException("already taken");
+            }
             updatedGame = new GameData(gameID, username, currentGame.blackUsername(), currentGame.gameName(), currentGame.game());
         } else if (playerColor.equals("BLACK")) {
+            if (currentGame.blackUsername() != null) {
+                throw new DataAccessException("already taken");
+            }
             updatedGame = new GameData(gameID, currentGame.whiteUsername(), username, currentGame.gameName(), currentGame.game());
         } else {
             throw new DataAccessException("Invalid player color");

@@ -3,6 +3,7 @@ package service;
 import com.google.gson.JsonSyntaxException;
 import dataaccess.*;
 import exception.ResponseException;
+import model.AuthData;
 import service.requests.*;
 import service.results.*;
 import java.util.ArrayList;
@@ -37,10 +38,20 @@ public class GameService {
         }
     }
 
-    public JoinGameResult joinGame(JoinGameRequest req) {
-        //getAuth
-        //getGame
-        //updateGame
-        return new JoinGameResult();
+    public JoinGameResult joinGame(String authToken, JoinGameRequest req) throws ResponseException {
+        try {
+            AuthData authData = authDAO.getAuth(authToken);
+            gameDAO.updatePlayer(req.gameID(), req.playerColor(), authData.username());
+            return new JoinGameResult();
+        } catch (DataAccessException e) {
+            if (e.getMessage().equals("Token does not exist")){
+                throw new ResponseException(401, "Error: unauthorized");
+            } else if (e.getMessage().equals("already taken")) {
+                throw new ResponseException(403, "Error: already taken");
+            } else {
+                throw new ResponseException(400, "Error: bad request");
+            }
+        }
     }
+
 }
