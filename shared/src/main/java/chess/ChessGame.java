@@ -134,9 +134,7 @@ public class ChessGame {
                     ChessPiece p = board.getPiece(pos);
                     List<ChessMove> moves = (List<ChessMove>) p.pieceMoves(board, pos);
                     for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(kingPos)) {
-                            return true;
-                        }
+                        if (move.getEndPosition().equals(kingPos)) { return true; }
                     }
                 }
             }

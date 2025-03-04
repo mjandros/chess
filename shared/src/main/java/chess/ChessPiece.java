@@ -68,9 +68,7 @@ public class ChessPiece {
                     if ((pieceColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2)
                             || (pieceColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)){
                         ChessPosition forwardTwo = new ChessPosition(myPosition.getRow() + (dir * 2), myPosition.getColumn());
-                        if (board.getPiece(forwardTwo) == null) {
-                            addMove(board, moves, myPosition, forwardTwo); //move forward two if applicable
-                        }
+                        if (board.getPiece(forwardTwo) == null) { addMove(board, moves, myPosition, forwardTwo); } //move forward two if applicable
                     }
                 }
                 if (!((myPosition.getColumn() == 1 && pieceColor == ChessGame.TeamColor.WHITE)
