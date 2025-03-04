@@ -4,7 +4,7 @@ import java.util.HashMap;
 import model.UserData;
 
 public class MemoryUserDAO implements UserDAO {
-    final private HashMap<String, UserData> users = new HashMap<>();
+    final public HashMap<String, UserData> users = new HashMap<>();
 
     public void createUser(UserData userData) throws DataAccessException {
         if (users.containsKey(userData.username())) {
