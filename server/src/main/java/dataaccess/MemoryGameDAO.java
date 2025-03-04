@@ -2,16 +2,18 @@ package dataaccess;
 
 import java.util.Collection;
 import java.util.HashMap;
+
+import chess.ChessGame;
 import model.GameData;
 
 public class MemoryGameDAO implements GameDAO {
     private final HashMap<Integer, GameData> games = new HashMap<>();
+    private int nextID = 1;
 
-    public void createGame(GameData gameData) throws DataAccessException {
-        if (games.containsKey(gameData.gameID())) {
-            throw new DataAccessException("Game already exists");
-        }
+    public int createGame(String gameName) {
+        GameData gameData = new GameData(nextID++, null, null, gameName, new ChessGame());
         games.put(gameData.gameID(), gameData);
+        return gameData.gameID();
     }
 
     public GameData getGame(int gameID) throws DataAccessException {

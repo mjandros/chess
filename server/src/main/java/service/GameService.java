@@ -1,5 +1,6 @@
 package service;
 
+import com.google.gson.JsonSyntaxException;
 import dataaccess.*;
 import exception.ResponseException;
 import service.requests.*;
@@ -26,11 +27,14 @@ public class GameService {
         }
     }
 
-    public CreateGameResult createGame(CreateGameRequest req) {
-        int gameID = 0;
-        //getAuth
-        //createGame
-        return new CreateGameResult(gameID);
+    public CreateGameResult createGame(String authToken, CreateGameRequest req) throws ResponseException {
+        try {
+            authDAO.getAuth(authToken);
+            int gameID = gameDAO.createGame(req.gameName());
+            return new CreateGameResult(gameID);
+        } catch (DataAccessException e) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
     }
 
     public JoinGameResult joinGame(JoinGameRequest req) {

@@ -32,12 +32,17 @@ public class GameHandler {
         }
     }
 
-    public CreateGameResult createGame(Request request, Response response) {
+    public String createGame(Request request, Response response) throws ResponseException {
         try {
-            return gameService.createGame(serializer.fromJson(request.body(), CreateGameRequest.class));
+            CreateGameResult res = gameService.createGame(request.headers("authorization"), serializer.fromJson(request.body(), CreateGameRequest.class));
+            response.status(200);
+            return serializer.toJson(res);
         } catch (JsonSyntaxException e) {
-            System.err.println("Invalid JSON format: " + e.getMessage());
-            return null;
+            throw new ResponseException(400, "Error: bad request");
+        } catch (ResponseException e) {
+            throw new ResponseException(401, "Error: unauthorized");
+        } catch (Exception e) {
+            throw new ResponseException(500, "Error: " + e.getMessage());
         }
     }
 
