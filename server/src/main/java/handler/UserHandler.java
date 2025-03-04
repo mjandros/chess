@@ -36,12 +36,15 @@ public class UserHandler {
         }
     }
 
-    public LoginResult login(Request request, Response response) throws ResponseException {
+    public String login(Request request, Response response) throws ResponseException {
         try {
-            return userService.login(serializer.fromJson(request.body(), LoginRequest.class));
-        } catch (JsonSyntaxException e) {
-            System.err.println("Invalid JSON format: " + e.getMessage());
-            return null;
+            LoginResult res = userService.login(serializer.fromJson(request.body(), LoginRequest.class));
+            response.status(200);
+            return serializer.toJson(res);
+        } catch (ResponseException e) {
+            throw new ResponseException(401, "Error: unauthorized");
+        } catch (Exception e) {
+            throw new ResponseException(500, "Error: " + e.getMessage());
         }
     }
 

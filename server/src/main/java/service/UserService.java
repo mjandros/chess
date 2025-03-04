@@ -8,7 +8,6 @@ import service.requests.*;
 import service.results.*;
 import dataaccess.*;
 import java.util.UUID;
-import spark.Response;
 
 public class UserService {
     private final UserDAO userDAO;
@@ -29,10 +28,25 @@ public class UserService {
             throw new ResponseException(403, "Error: already taken");
         }
     }
-    public LoginResult login(LoginRequest req) {
-        String username = ""; //getUser
-        String authToken = ""; //createAuth
-        return new LoginResult(username, authToken);
+    public LoginResult login(LoginRequest req) throws ResponseException {
+        UserData userData = userDAO.getUser(req.username());
+        if (userData == null) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
+        if (!userData.password().equals(req.password())) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
+        AuthData authData = new AuthData(UUID.randomUUID().toString(), userData.username());
+        boolean success = false;
+        while (!success) {
+            try {
+                authData = new AuthData(UUID.randomUUID().toString(), userData.username());
+                authDAO.createAuth(authData);
+                success = true;
+            } catch (DataAccessException ignored) {
+            }
+        }
+        return new LoginResult(userData.username(), authData.authToken());
     }
     public void logout(LogoutRequest req) {
         //getAuth, deleteAuth
