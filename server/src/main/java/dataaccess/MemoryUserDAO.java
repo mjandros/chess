@@ -20,7 +20,7 @@ public class MemoryUserDAO implements UserDAO {
         return users.get(username);
     }
 
-    public void clear() {
+    public void clearUsers() {
         users.clear();
     }
 }
