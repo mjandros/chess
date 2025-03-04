@@ -26,7 +26,7 @@ public class PositiveTests {
     private static String authToken;
 
     @BeforeAll
-    public static void init() {
+    public static void initPositive() {
         userDAO = new MemoryUserDAO();
         gameDAO = new MemoryGameDAO();
         authDAO = new MemoryAuthDAO();

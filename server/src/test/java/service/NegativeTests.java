@@ -24,7 +24,7 @@ public class NegativeTests {
     private static AppService appService;
 
     @BeforeAll
-    public static void init() {
+    public static void initNegative() {
         userDAO = new MemoryUserDAO();
         gameDAO = new MemoryGameDAO();
         authDAO = new MemoryAuthDAO();
