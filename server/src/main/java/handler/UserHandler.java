@@ -48,13 +48,15 @@ public class UserHandler {
         }
     }
 
-    public LogoutResult logout(Request request, Response response) {
+    public String logout(Request request, Response response) throws ResponseException {
         try {
-            userService.logout(serializer.fromJson(request.body(), LogoutRequest.class));
-            return new LogoutResult();
-        } catch (JsonSyntaxException e) {
-            System.err.println("Invalid JSON format: " + e.getMessage());
-            return null;
+            userService.logout(request.headers("authorization"), serializer.fromJson(request.body(), LogoutRequest.class));
+            response.status(200);
+            return serializer.toJson(new LogoutResult());
+        } catch (ResponseException e) {
+            throw new ResponseException(401, "Error: unauthorized");
+        } catch (Exception e) {
+            throw new ResponseException(500, "Error: " + e.getMessage());
         }
     }
 }

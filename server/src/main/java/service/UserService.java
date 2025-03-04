@@ -4,6 +4,7 @@ import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
+import org.eclipse.jetty.server.Response;
 import service.requests.*;
 import service.results.*;
 import dataaccess.*;
@@ -48,7 +49,12 @@ public class UserService {
         }
         return new LoginResult(userData.username(), authData.authToken());
     }
-    public void logout(LogoutRequest req) {
-        //getAuth, deleteAuth
+    public void logout(String authToken, LogoutRequest req) throws ResponseException {
+        try {
+            AuthData authData = authDAO.getAuth(authToken);
+            authDAO.deleteAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
     }
 }
