@@ -19,4 +19,8 @@ public class MemoryUserDAO implements UserDAO {
         }
         return users.get(username);
     }
+
+    public void clear() {
+        users.clear();
+    }
 }
