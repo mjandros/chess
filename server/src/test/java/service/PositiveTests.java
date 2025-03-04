@@ -55,7 +55,7 @@ public class PositiveTests {
     @DisplayName("Positive logout test")
     public void logoutTest() throws ResponseException {
         LogoutRequest req = new LogoutRequest();
-        userService.logout(authToken, req);
+        Assertions.assertDoesNotThrow(() -> userService.logout(authToken, req), "Should logout successfully");
     }
 
     @Test
