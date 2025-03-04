@@ -2,12 +2,17 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import service.exceptions.BadRequestException;
+import service.exceptions.UsernameTakenException;
 import service.requests.*;
 import service.results.*;
 import spark.Response;
 import spark.Request;
 import spark.Response;
 import service.UserService;
+import exception.ResponseException;
+
+import java.util.Map;
 
 public class UserHandler {
 
@@ -19,12 +24,13 @@ public class UserHandler {
         userService = new UserService();
     }
 
-    public RegisterResult register(Request request, Response response) {
+    public RegisterResult register(Request request, Response response) throws ResponseException {
         try {
             return userService.register(serializer.fromJson(request.body(), RegisterRequest.class));
         } catch (JsonSyntaxException e) {
-            System.err.println("Invalid JSON format: " + e.getMessage());
-            return null;
+            throw new ResponseException(400, "Error: bad request");
+        } catch (ResponseException e) {
+            throw new ResponseException(403, "Error: already taken");
         }
     }
 

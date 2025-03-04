@@ -2,6 +2,7 @@ package server;
 
 import handler.*;
 import spark.*;
+import exception.ResponseException;
 
 import static spark.Spark.*;
 
@@ -24,6 +25,7 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
         registerEndpoints();
+        Spark.exception(ResponseException.class, this::exceptionHandler);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -51,5 +53,10 @@ public class Server {
 
         //App Endpoints
         delete("/db", appHandler::clear);
+    }
+
+    private void exceptionHandler(ResponseException ex, Request req, Response res) {
+        res.status(ex.StatusCode());
+        res.body(ex.toJson());
     }
 }

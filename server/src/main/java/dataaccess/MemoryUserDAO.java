@@ -13,9 +13,9 @@ public class MemoryUserDAO implements UserDAO {
         users.put(userData.username(), userData);
     }
 
-    public UserData getUser(String username) throws DataAccessException {
+    public UserData getUser(String username) {
         if (!users.containsKey(username)) {
-            throw new DataAccessException("User does not exist");
+            return null;
         }
         return users.get(username);
     }
