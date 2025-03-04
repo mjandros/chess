@@ -65,20 +65,23 @@ public class ChessPiece {
                 ChessPosition forwardOne = new ChessPosition(myPosition.getRow() + dir, myPosition.getColumn());
                 if (board.getPiece(forwardOne) == null) {
                     addMove(board, moves, myPosition, forwardOne); //move forward one
-                    if ((pieceColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2) || (pieceColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)){
+                    if ((pieceColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2)
+                            || (pieceColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)){
                         ChessPosition forwardTwo = new ChessPosition(myPosition.getRow() + (dir * 2), myPosition.getColumn());
                         if (board.getPiece(forwardTwo) == null) {
                             addMove(board, moves, myPosition, forwardTwo); //move forward two if applicable
                         }
                     }
                 }
-                if (!((myPosition.getColumn() == 1 && pieceColor == ChessGame.TeamColor.WHITE) || (myPosition.getColumn() == 8 && pieceColor == ChessGame.TeamColor.BLACK))) {
+                if (!((myPosition.getColumn() == 1 && pieceColor == ChessGame.TeamColor.WHITE)
+                        || (myPosition.getColumn() == 8 && pieceColor == ChessGame.TeamColor.BLACK))) {
                     ChessPosition leftDiagonal = new ChessPosition(myPosition.getRow() + dir, myPosition.getColumn() - dir);
                     if (board.getPiece(leftDiagonal) != null) {
                         addMove(board, moves, myPosition, leftDiagonal); //capture
                     }
                 }
-                if (!((myPosition.getColumn() == 8 && pieceColor == ChessGame.TeamColor.WHITE) || (myPosition.getColumn() == 1 && pieceColor == ChessGame.TeamColor.BLACK))) {
+                if (!((myPosition.getColumn() == 8 && pieceColor == ChessGame.TeamColor.WHITE)
+                        || (myPosition.getColumn() == 1 && pieceColor == ChessGame.TeamColor.BLACK))) {
                     ChessPosition rightDiagonal = new ChessPosition(myPosition.getRow() + dir, myPosition.getColumn() + dir);
                     if (board.getPiece(rightDiagonal) != null) {
                         addMove(board, moves, myPosition, rightDiagonal); //capture
@@ -92,7 +95,8 @@ public class ChessPiece {
         else if (type == PieceType.KNIGHT) {
             for (int r = 1; r < 9; r++) {
                 for (int c = 1; c < 9; c++) {
-                    if ((Math.abs(myPosition.getRow() - r) == 1 && Math.abs(myPosition.getColumn() - c) == 2) || (Math.abs(myPosition.getRow() - r) == 2 && Math.abs(myPosition.getColumn() - c) == 1)) {
+                    if ((Math.abs(myPosition.getRow() - r) == 1 && Math.abs(myPosition.getColumn() - c) == 2)
+                            || (Math.abs(myPosition.getRow() - r) == 2 && Math.abs(myPosition.getColumn() - c) == 1)) {
                         addMove(board, moves, myPosition, new ChessPosition(r, c));
                     }
                 }

@@ -119,7 +119,8 @@ public class ChessGame {
         for (int r = 1; r < 9; r++) {
             for (int c = 1; c < 9; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
-                if (board.getPiece(pos) != null && board.getPiece(pos).getTeamColor() == teamColor && board.getPiece(pos).getPieceType() == ChessPiece.PieceType.KING) {
+                if (board.getPiece(pos) != null && board.getPiece(pos).getTeamColor() == teamColor
+                        && board.getPiece(pos).getPieceType() == ChessPiece.PieceType.KING) {
                     kingPosR = r;
                     kingPosC = c;
                 }

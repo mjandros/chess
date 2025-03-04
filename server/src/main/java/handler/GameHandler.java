@@ -22,7 +22,8 @@ public class GameHandler {
 
     public String listGames(Request request, Response response) throws ResponseException {
         try {
-            ListGamesResult res = gameService.listGames(request.headers("authorization"), serializer.fromJson(request.body(), ListGamesRequest.class));
+            ListGamesResult res = gameService.listGames(request.headers("authorization"),
+                    serializer.fromJson(request.body(), ListGamesRequest.class));
             response.status(200);
             return serializer.toJson(res);
         } catch (ResponseException e) {
@@ -34,7 +35,8 @@ public class GameHandler {
 
     public String createGame(Request request, Response response) throws ResponseException {
         try {
-            CreateGameResult res = gameService.createGame(request.headers("authorization"), serializer.fromJson(request.body(), CreateGameRequest.class));
+            CreateGameResult res = gameService.createGame(request.headers("authorization"),
+                    serializer.fromJson(request.body(), CreateGameRequest.class));
             response.status(200);
             return serializer.toJson(res);
         } catch (JsonSyntaxException e) {
