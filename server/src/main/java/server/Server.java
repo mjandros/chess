@@ -1,6 +1,8 @@
 package server;
 
 import handler.*;
+import service.*;
+import dataaccess.*;
 import spark.*;
 import exception.ResponseException;
 
@@ -12,10 +14,26 @@ public class Server {
     private final GameHandler gameHandler;
     private final AppHandler appHandler;
 
+    private final UserService userService;
+    private final GameService gameService;
+    private final AppService appService;
+
+    private final UserDAO userDAO;
+    private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
+
     public Server() {
-        userHandler = new UserHandler();
-        gameHandler = new GameHandler();
-        appHandler = new AppHandler();
+        userDAO = new MemoryUserDAO();
+        gameDAO = new MemoryGameDAO();
+        authDAO = new MemoryAuthDAO();
+
+        userService = new UserService(userDAO, authDAO);
+        gameService = new GameService(gameDAO, authDAO);
+        appService = new AppService(userDAO, gameDAO, authDAO);
+
+        userHandler = new UserHandler(userService);
+        gameHandler = new GameHandler(gameService);
+        appHandler = new AppHandler(appService);
     }
 
     public int run(int desiredPort) {

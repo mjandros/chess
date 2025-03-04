@@ -14,9 +14,9 @@ public class AppHandler {
     private final Gson serializer;
     private final AppService appService;
 
-    public AppHandler() {
+    public AppHandler(AppService appService) {
         serializer = new Gson();
-        appService = new AppService();
+        this.appService = appService;
     }
 
     public ClearResult clear(Request request, Response response) {

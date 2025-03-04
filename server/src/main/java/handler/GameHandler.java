@@ -14,9 +14,9 @@ public class GameHandler {
     private final Gson serializer;
     private final GameService gameService;
 
-    public GameHandler() {
+    public GameHandler(GameService gameService) {
         serializer = new Gson();
-        gameService = new GameService();
+        this.gameService = gameService;
     }
 
     public ListGamesResult listGames(Request request, Response response) {
