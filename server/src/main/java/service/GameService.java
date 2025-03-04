@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import exception.ResponseException;
 import service.requests.*;
 import service.results.*;
 import java.util.ArrayList;
@@ -16,11 +17,13 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public ListGamesResult listGames(ListGamesRequest req) {
-        ArrayList<GameData> games = new ArrayList<>();
-        //getAuth
-        //listGames
-        return new ListGamesResult(games);
+    public ListGamesResult listGames(String authToken, ListGamesRequest req) throws ResponseException {
+        try {
+            authDAO.getAuth(authToken);
+            return new ListGamesResult(gameDAO.listGames());
+        } catch (DataAccessException e) {
+            throw new ResponseException(401, "Error: unauthorized");
+        }
     }
 
     public CreateGameResult createGame(CreateGameRequest req) {

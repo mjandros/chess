@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import exception.ResponseException;
 import service.requests.*;
 import service.results.*;
 import spark.Response;
@@ -19,12 +20,15 @@ public class GameHandler {
         this.gameService = gameService;
     }
 
-    public ListGamesResult listGames(Request request, Response response) {
+    public String listGames(Request request, Response response) throws ResponseException {
         try {
-            return gameService.listGames(serializer.fromJson(request.body(), ListGamesRequest.class));
-        } catch (JsonSyntaxException e) {
-            System.err.println("Invalid JSON format: " + e.getMessage());
-            return null;
+            ListGamesResult res = gameService.listGames(request.headers("authorization"), serializer.fromJson(request.body(), ListGamesRequest.class));
+            response.status(200);
+            return serializer.toJson(res);
+        } catch (ResponseException e) {
+            throw new ResponseException(401, "Error: unauthorized");
+        } catch (Exception e) {
+            throw new ResponseException(500, "Error: " + e.getMessage());
         }
     }
 
