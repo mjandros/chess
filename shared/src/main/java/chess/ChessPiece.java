@@ -65,10 +65,11 @@ public class ChessPiece {
                 ChessPosition forwardOne = new ChessPosition(myPosition.getRow() + dir, myPosition.getColumn());
                 if (board.getPiece(forwardOne) == null) {
                     addMove(board, moves, myPosition, forwardOne); //move forward one
-                    if ((pieceColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2)
-                            || (pieceColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)){
-                        ChessPosition forwardTwo = new ChessPosition(myPosition.getRow() + (dir * 2), myPosition.getColumn());
-                        if (board.getPiece(forwardTwo) == null) { addMove(board, moves, myPosition, forwardTwo); } //move forward two if applicable
+                    ChessPosition forwardTwo = new ChessPosition(myPosition.getRow() + (dir * 2), myPosition.getColumn());
+                    if (((pieceColor == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2)
+                            || (pieceColor == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7))
+                            && board.getPiece(forwardTwo) == null) {
+                        addMove(board, moves, myPosition, forwardTwo); //move forward two if applicable
                     }
                 }
                 if (!((myPosition.getColumn() == 1 && pieceColor == ChessGame.TeamColor.WHITE)

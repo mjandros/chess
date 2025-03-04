@@ -130,13 +130,20 @@ public class ChessGame {
         for (int r = 1; r < 9; r++) {
             for (int c = 1; c < 9; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
-                if (board.getPiece(pos) != null && board.getPiece(pos).getTeamColor() != teamColor) {
-                    ChessPiece p = board.getPiece(pos);
-                    List<ChessMove> moves = (List<ChessMove>) p.pieceMoves(board, pos);
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(kingPos)) { return true; }
-                    }
+                if (isInCheckHelper(pos, kingPos, teamColor)) {
+                    return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    public boolean isInCheckHelper(ChessPosition pos, ChessPosition kingPos, TeamColor teamColor) {
+        if (board.getPiece(pos) != null && board.getPiece(pos).getTeamColor() != teamColor) {
+            ChessPiece p = board.getPiece(pos);
+            List<ChessMove> moves = (List<ChessMove>) p.pieceMoves(board, pos);
+            for (ChessMove move : moves) {
+                if (move.getEndPosition().equals(kingPos)) { return true; }
             }
         }
         return false;
