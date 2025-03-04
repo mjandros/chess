@@ -26,7 +26,11 @@ public class UserService {
             authDAO.createAuth(authData);
             return new RegisterResult(userData.username(), authData.authToken());
         } catch (DataAccessException e) {
-            throw new ResponseException(403, "Error: already taken");
+            if (e.getMessage().equals("User already exists")){
+                throw new ResponseException(403, "Error: already taken");
+            } else {
+                throw new ResponseException(400, "Error: bad request");
+            }
         }
     }
     public LoginResult login(LoginRequest req) throws ResponseException {

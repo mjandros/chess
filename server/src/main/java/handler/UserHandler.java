@@ -30,7 +30,11 @@ public class UserHandler {
         } catch (JsonSyntaxException e) {
             throw new ResponseException(400, "Error: bad request");
         } catch (ResponseException e) {
-            throw new ResponseException(403, "Error: already taken");
+            if (e.getMessage().equals("Error: already taken")){
+                throw new ResponseException(403, "Error: already taken");
+            } else {
+                throw new ResponseException(400, "Error: bad request");
+            }
         } catch (Exception e) {
             throw new ResponseException(500, "Error: " + e.getMessage());
         }

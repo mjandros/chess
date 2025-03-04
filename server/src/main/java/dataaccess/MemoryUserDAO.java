@@ -10,6 +10,9 @@ public class MemoryUserDAO implements UserDAO {
         if (users.containsKey(userData.username())) {
             throw new DataAccessException("User already exists");
         }
+        if (userData.username() == null || userData.password() == null) {
+            throw new DataAccessException("Username or password is null");
+        }
         users.put(userData.username(), userData);
     }
 

@@ -31,6 +31,9 @@ public class MemoryGameDAO implements GameDAO {
         if (!games.containsKey(gameID)) {
             throw new DataAccessException("Game does not exist");
         }
+        if (playerColor == null) {
+            throw new DataAccessException("playerColor is null");
+        }
         GameData currentGame = games.get(gameID);
         GameData updatedGame;
         if (playerColor.equals("WHITE")) {
