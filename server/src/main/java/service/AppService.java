@@ -17,9 +17,9 @@ public class AppService {
     }
 
     public ClearResult clear(ClearRequest req) {
-        //clear(UserDAO)
-        //clear(GameDAO)
-        //clear(AuthDAO)
+        userDAO.clearUsers();
+        gameDAO.clearGames();
+        authDAO.clearAuths();
         return new ClearResult();
     }
 }

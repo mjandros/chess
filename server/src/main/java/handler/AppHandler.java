@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import exception.ResponseException;
 import service.requests.*;
 import service.results.*;
 import spark.Response;
@@ -19,12 +20,13 @@ public class AppHandler {
         this.appService = appService;
     }
 
-    public ClearResult clear(Request request, Response response) {
+    public String clear(Request request, Response response) throws ResponseException {
         try {
-            return appService.clear(serializer.fromJson(request.body(), ClearRequest.class));
-        } catch (JsonSyntaxException e) {
-            System.err.println("Invalid JSON format: " + e.getMessage());
-            return null;
+            ClearResult res = appService.clear(serializer.fromJson(request.body(), ClearRequest.class));
+            response.status(200);
+            return serializer.toJson(res);
+        } catch (Exception e) {
+            throw new ResponseException(500, "Error: " + e.getMessage());
         }
     }
 
