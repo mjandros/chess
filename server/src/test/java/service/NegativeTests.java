@@ -16,22 +16,22 @@ import java.util.List;
 
 public class NegativeTests {
 
-    private static UserDAO userDAO;
-    private static GameDAO gameDAO;
-    private static AuthDAO authDAO;
-    private static UserService userService;
-    private static GameService gameService;
-    private static AppService appService;
+    private static UserDAO userDAONeg;
+    private static GameDAO gameDAONeg;
+    private static AuthDAO authDAONeg;
+    private static UserService userServiceNeg;
+    private static GameService gameServiceNeg;
+    private static AppService appServiceNeg;
 
     @BeforeAll
     public static void initNegative() {
-        userDAO = new MemoryUserDAO();
-        gameDAO = new MemoryGameDAO();
-        authDAO = new MemoryAuthDAO();
+        userDAONeg = new MemoryUserDAO();
+        gameDAONeg = new MemoryGameDAO();
+        authDAONeg = new MemoryAuthDAO();
 
-        userService = new UserService(userDAO, authDAO);
-        gameService = new GameService(gameDAO, authDAO);
-        appService = new AppService(userDAO, gameDAO, authDAO);
+        userServiceNeg = new UserService(userDAONeg, authDAONeg);
+        gameServiceNeg = new GameService(gameDAONeg, authDAONeg);
+        appServiceNeg = new AppService(userDAONeg, gameDAONeg, authDAONeg);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class NegativeTests {
     public void registerTest() {
         RegisterRequest req = new RegisterRequest(null, "password", "email");
 
-        Assertions.assertThrows(ResponseException.class, () -> userService.register(req), "Bad request expected");
+        Assertions.assertThrows(ResponseException.class, () -> userServiceNeg.register(req), "Bad request expected");
     }
 
     @Test
@@ -47,7 +47,7 @@ public class NegativeTests {
     public void logoutTest() {
         LogoutRequest req = new LogoutRequest();
 
-        Assertions.assertThrows(ResponseException.class, () -> userService.logout("", req), "unauthorized expected");
+        Assertions.assertThrows(ResponseException.class, () -> userServiceNeg.logout("", req), "unauthorized expected");
     }
 
     @Test
@@ -55,7 +55,7 @@ public class NegativeTests {
     public void loginTest() {
         LoginRequest req = new LoginRequest("username", "password");
 
-        Assertions.assertThrows(ResponseException.class, () -> userService.login(req), "unauthorized expected");
+        Assertions.assertThrows(ResponseException.class, () -> userServiceNeg.login(req), "unauthorized expected");
     }
 
     @Test
@@ -63,7 +63,7 @@ public class NegativeTests {
     public void createGameTest() {
         CreateGameRequest req = new CreateGameRequest("gameName");
 
-        Assertions.assertThrows(ResponseException.class, () -> gameService.createGame("", req), "unauthorized expected");
+        Assertions.assertThrows(ResponseException.class, () -> gameServiceNeg.createGame("", req), "unauthorized expected");
     }
 
     @Test
@@ -71,7 +71,7 @@ public class NegativeTests {
     public void joinGameTest() {
         JoinGameRequest req = new JoinGameRequest("WHITE", 1);
 
-        Assertions.assertThrows(ResponseException.class, () -> gameService.joinGame("", req), "unauthorized expected");
+        Assertions.assertThrows(ResponseException.class, () -> gameServiceNeg.joinGame("", req), "unauthorized expected");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class NegativeTests {
     public void listGamesTest() {
         ListGamesRequest req = new ListGamesRequest();
 
-        Assertions.assertThrows(ResponseException.class, () -> gameService.listGames("", req), "unauthorized expected");
+        Assertions.assertThrows(ResponseException.class, () -> gameServiceNeg.listGames("", req), "unauthorized expected");
     }
 
 }
