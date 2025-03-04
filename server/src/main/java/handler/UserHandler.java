@@ -22,11 +22,11 @@ public class UserHandler {
         this.userService = userService;
     }
 
-    public RegisterResult register(Request request, Response response) throws ResponseException {
+    public String register(Request request, Response response) throws ResponseException {
         try {
             RegisterResult res = userService.register(serializer.fromJson(request.body(), RegisterRequest.class));
             response.status(200);
-            return res;
+            return serializer.toJson(res);
         } catch (JsonSyntaxException e) {
             throw new ResponseException(400, "Error: bad request");
         } catch (ResponseException e) {
@@ -36,7 +36,7 @@ public class UserHandler {
         }
     }
 
-    public LoginResult login(Request request, Response response) {
+    public LoginResult login(Request request, Response response) throws ResponseException {
         try {
             return userService.login(serializer.fromJson(request.body(), LoginRequest.class));
         } catch (JsonSyntaxException e) {
