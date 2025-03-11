@@ -121,7 +121,7 @@ public class PositiveTests {
     @Test
     @Order(7)
     @DisplayName("Positive clear test")
-    public void clearTest() throws DataAccessException {
+    public void clearTest() throws ResponseException {
         ClearRequest req = new ClearRequest();
 
         appService.clear(req);

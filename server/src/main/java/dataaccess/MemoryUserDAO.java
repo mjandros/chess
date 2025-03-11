@@ -1,6 +1,8 @@
 package dataaccess;
 
 import java.util.HashMap;
+
+import exception.ResponseException;
 import model.UserData;
 
 public class MemoryUserDAO implements UserDAO {
@@ -16,14 +18,14 @@ public class MemoryUserDAO implements UserDAO {
         users.put(userData.username(), userData);
     }
 
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws ResponseException {
         if (!users.containsKey(username)) {
             return null;
         }
         return users.get(username);
     }
 
-    public void clearUsers() {
+    public void clearUsers() throws ResponseException {
         users.clear();
     }
 }
