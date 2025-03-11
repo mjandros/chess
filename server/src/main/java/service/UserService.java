@@ -5,6 +5,7 @@ import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
 import org.eclipse.jetty.server.Response;
+import org.mindrot.jbcrypt.BCrypt;
 import service.requests.*;
 import service.results.*;
 import dataaccess.*;
@@ -38,7 +39,7 @@ public class UserService {
         if (userData == null) {
             throw new ResponseException(401, "Error: unauthorized");
         }
-        if (!userData.password().equals(req.password())) {
+        if (!verifyUser(req.password(), userData.password())) {
             throw new ResponseException(401, "Error: unauthorized");
         }
         AuthData authData = new AuthData(UUID.randomUUID().toString(), userData.username());
@@ -52,6 +53,9 @@ public class UserService {
             }
         }
         return new LoginResult(userData.username(), authData.authToken());
+    }
+    boolean verifyUser(String providedClearTextPassword, String hashedPassword) {
+        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
     }
     public void logout(String authToken, LogoutRequest req) throws ResponseException {
         try {

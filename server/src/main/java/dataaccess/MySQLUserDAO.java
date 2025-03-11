@@ -2,6 +2,7 @@ package dataaccess;
 
 import exception.ResponseException;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.ResultSet;
 
@@ -15,7 +16,7 @@ public class MySQLUserDAO implements UserDAO {
     }
     public void createUser(UserData userData) throws ResponseException {
         var statement = "INSERT INTO users (username, pw, email) VALUES (?, ?, ?)";
-        executeUpdate(statement, userData.username(), userData.password(), userData.email());
+        executeUpdate(statement, userData.username(), hashPassword(userData.password()), userData.email());
     }
     public UserData getUser(String username) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -34,6 +35,10 @@ public class MySQLUserDAO implements UserDAO {
     }
     public void clearUsers() throws ResponseException {
         executeUpdate("TRUNCATE users");
+    }
+
+    String hashPassword(String clearTextPassword) {
+        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
     }
 
     private UserData readUser(ResultSet rs) throws Exception {

@@ -1,15 +1,9 @@
 package dataaccess;
 
-import chess.ChessGame;
-import com.google.gson.Gson;
 import exception.ResponseException;
 import model.AuthData;
-import model.GameData;
 
 import java.sql.ResultSet;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
 
 public class MySQLAuthDAO implements AuthDAO {
 
