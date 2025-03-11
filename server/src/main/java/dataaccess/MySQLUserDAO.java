@@ -11,7 +11,7 @@ import static java.sql.Types.NULL;
 public class MySQLUserDAO implements UserDAO {
 
     public MySQLUserDAO() throws Exception {
-        configureDatabase();
+        configureDatabaseCaller();
     }
     public void createUser(UserData userData) throws ResponseException {
         var statement = "INSERT INTO users (username, pw, email) VALUES (?, ?, ?)";
@@ -76,7 +76,11 @@ public class MySQLUserDAO implements UserDAO {
             """
     };
 
-    private void configureDatabase() throws Exception {
+    private void configureDatabaseCaller() throws Exception {
+        configureDatabase(createStatements);
+    }
+
+    static void configureDatabase(String[] createStatements) throws Exception {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : createStatements) {
