@@ -33,7 +33,7 @@ public class MySQLUserDAO implements UserDAO {
         return null;
     }
     public void clearUsers() throws ResponseException {
-        executeUpdate("TRUNCATE user");
+        executeUpdate("TRUNCATE users");
     }
 
     private UserData readUser(ResultSet rs) throws Exception {
@@ -43,7 +43,7 @@ public class MySQLUserDAO implements UserDAO {
         return new UserData(username, password, email);
     }
 
-    private void executeUpdate(String statement, Object... params) throws ResponseException {
+    static void executeUpdate(String statement, Object... params) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
