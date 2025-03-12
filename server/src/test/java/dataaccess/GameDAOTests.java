@@ -3,9 +3,7 @@ package dataaccess;
 import chess.ChessGame;
 import exception.ResponseException;
 import model.GameData;
-import model.UserData;
 import org.junit.jupiter.api.*;
-import service.results.ListGamesResult;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,8 +39,8 @@ public class GameDAOTests {
 
     @Test
     @Order(3)
-    @DisplayName("Positive listGames test")
-    public void listGamesPosTest() throws ResponseException {
+    @DisplayName("Positive listGames test 1")
+    public void listGamesPosTest1() throws ResponseException {
         gameDAO.clearGames();
         gameDAO.createGame("testGame");
 
@@ -92,4 +90,42 @@ public class GameDAOTests {
         Assertions.assertThrows(ResponseException.class, () -> gameDAO.getGame(3), "game #3 was not erased");
     }
 
+    @Test
+    @Order(6)
+    @DisplayName("Negative createGame test")
+    public void createGameNegTest() {
+        Assertions.assertThrows(Exception.class, () -> gameDAO.createGame(null));
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("Negative getGame test")
+    public void getGameNegTest() throws ResponseException {
+        gameDAO.clearGames();
+
+        Assertions.assertThrows(ResponseException.class, () -> gameDAO.getGame(1), "Game should not exist");
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("Positive listGames test 2")
+    public void listGamesPosTest2() throws ResponseException {
+        gameDAO.clearGames();
+
+        Collection<GameData> actual = gameDAO.listGames();
+
+        Assertions.assertEquals(0, actual.size(), "List should be empty");
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Negative updatePlayer test")
+    public void updatePlayerNegTest() throws ResponseException, DataAccessException {
+        gameDAO.clearGames();
+        gameDAO.createGame("testGame");
+
+        gameDAO.updatePlayer(1, "WHITE", "whiteUsername");
+
+        Assertions.assertThrows(DataAccessException.class, () -> gameDAO.updatePlayer(1, "WHITE", "otherWhiteUsername"), "whiteUsername should already be taken");
+    }
 }
