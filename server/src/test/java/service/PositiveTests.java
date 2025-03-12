@@ -76,6 +76,7 @@ public class PositiveTests {
     @Order(4)
     @DisplayName("Positive createGame test")
     public void createGameTest() throws ResponseException, DataAccessException {
+        gameDAO.clearGames();
         CreateGameRequest req = new CreateGameRequest("gameName");
 
         CreateGameResult expected = new CreateGameResult(1);
