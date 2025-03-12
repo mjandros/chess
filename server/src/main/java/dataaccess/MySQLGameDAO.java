@@ -68,14 +68,14 @@ public class MySQLGameDAO implements GameDAO {
         return result;
     }
 
-    public void updatePlayer(int gameID, String playerColor, String username) throws ResponseException {
+    public void updatePlayer(int gameID, String playerColor, String username) throws ResponseException, DataAccessException {
         var statement = "";
         if (Objects.equals(playerColor, "WHITE")) {
             statement = "UPDATE games SET whiteUsername = ? WHERE id = ?";
         } else if (Objects.equals(playerColor, "BLACK")) {
             statement = "UPDATE games SET blackUsername = ? WHERE id = ?";
         } else {
-            throw new ResponseException(500, "Invalid player color");
+            throw new DataAccessException("Error: Invalid player color");
         }
         executeUpdate(statement, username, gameID);
     }
