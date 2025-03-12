@@ -10,7 +10,7 @@ public class UserDAOTests {
     private static UserDAO userDAO;
 
     @BeforeAll
-    public static void initDAO() throws Exception {
+    public static void initUserDAO() throws Exception {
         userDAO = new MySQLUserDAO();
     }
 
@@ -59,7 +59,7 @@ public class UserDAOTests {
 
     @Test
     @Order(4)
-    @DisplayName("Positive createUser test")
+    @DisplayName("Negative createUser test")
     public void createUserNegTest() throws ResponseException, DataAccessException {
         UserData userData = new UserData("username", "password", "email");
 

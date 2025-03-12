@@ -127,6 +127,6 @@ public class PositiveTests {
         appService.clear(req);
 
         Assertions.assertNull(userDAO.getUser("username"), "user was not erased");
-        Assertions.assertThrows(DataAccessException.class, () -> gameDAO.getGame(1), "game was not erased");
+        Assertions.assertThrows(ResponseException.class, () -> gameDAO.getGame(1), "game was not erased");
     }
 }
