@@ -24,10 +24,10 @@ public class NegativeTests {
     private static AppService appServiceNeg;
 
     @BeforeAll
-    public static void initNegative() {
-        userDAONeg = new MemoryUserDAO();
-        gameDAONeg = new MemoryGameDAO();
-        authDAONeg = new MemoryAuthDAO();
+    public static void initNegative() throws Exception {
+        userDAONeg = new MySQLUserDAO();
+        gameDAONeg = new MySQLGameDAO();
+        authDAONeg = new MySQLAuthDAO();
 
         userServiceNeg = new UserService(userDAONeg, authDAONeg);
         gameServiceNeg = new GameService(gameDAONeg, authDAONeg);
@@ -51,7 +51,7 @@ public class NegativeTests {
     }
 
     @Test
-    @DisplayName("Positive login test")
+    @DisplayName("Negative login test")
     public void loginTest() {
         LoginRequest req = new LoginRequest("username", "password");
 

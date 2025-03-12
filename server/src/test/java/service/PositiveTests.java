@@ -26,10 +26,10 @@ public class PositiveTests {
     private static String authToken;
 
     @BeforeAll
-    public static void initPositive() {
-        userDAO = new MemoryUserDAO();
-        gameDAO = new MemoryGameDAO();
-        authDAO = new MemoryAuthDAO();
+    public static void initPositive() throws Exception {
+        userDAO = new MySQLUserDAO();
+        gameDAO = new MySQLGameDAO();
+        authDAO = new MySQLAuthDAO();
 
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);

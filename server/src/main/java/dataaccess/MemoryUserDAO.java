@@ -19,6 +19,7 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     public UserData getUser(String username) throws ResponseException {
+        System.out.println("why are we here");
         if (!users.containsKey(username)) {
             return null;
         }

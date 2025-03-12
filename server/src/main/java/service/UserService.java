@@ -35,11 +35,13 @@ public class UserService {
         }
     }
     public LoginResult login(LoginRequest req) throws ResponseException {
+        System.out.println("logging in");
         UserData userData = userDAO.getUser(req.username());
+        System.out.println("got user");
         if (userData == null) {
             throw new ResponseException(401, "Error: unauthorized");
         }
-        System.out.printf("reg: %s, hashed: %s\n", req.password(), readHashedPassword(req.username()));
+        System.out.printf("reg: %s, hashed: %s\n", req.password(), userData.password());
         if (!verifyUser(req.password(), readHashedPassword(req.username()))) {
             throw new ResponseException(401, "Error: unauthorized");
         }
