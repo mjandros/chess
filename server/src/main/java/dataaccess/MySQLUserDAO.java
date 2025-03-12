@@ -12,11 +12,8 @@ import static java.sql.Types.NULL;
 
 public class MySQLUserDAO implements UserDAO {
 
-    //private final UserDAO memory;
-
     public MySQLUserDAO() throws Exception {
         configureDatabaseCaller();
-        //memory = new MemoryUserDAO();
     }
     public void createUser(UserData userData) throws ResponseException, DataAccessException {
         if (userExists(userData.username())) {
