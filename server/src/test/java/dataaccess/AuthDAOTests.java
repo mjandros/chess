@@ -5,6 +5,7 @@ import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import org.mindrot.jbcrypt.BCrypt;
+import spark.Response;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AuthDAOTests {
@@ -71,9 +72,27 @@ public class AuthDAOTests {
 
     @Test
     @Order(5)
-    @DisplayName("Negative getUser test")
-    public void getUserNegTest() throws ResponseException {
+    @DisplayName("Negative createAuth test")
+    public void createAuthNegTest() {
+        Assertions.assertThrows(Exception.class, () -> authDAO.createAuth(new AuthData(null, null)), "authToken and username should not be null");
+    }
 
+    @Test
+    @Order(6)
+    @DisplayName("Negative getAuth test")
+    public void getAuthNegTest() throws ResponseException {
+        authDAO.clearAuths();
+
+        Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth("authToken"), "Auth should not exist");
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("Negative deleteAuth test")
+    public void deleteAuthNegTest() throws ResponseException {
+        authDAO.clearAuths();
+
+        Assertions.assertThrows(ResponseException.class, () -> authDAO.deleteAuth("authToken"), "Auth should not exist");
     }
 
 }
