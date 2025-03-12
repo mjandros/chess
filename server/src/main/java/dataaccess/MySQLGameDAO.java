@@ -43,19 +43,28 @@ public class MySQLGameDAO implements GameDAO {
         return null;    }
 
     public Collection<GameData> listGames() throws ResponseException {
+        System.out.println("listing games");
         var result = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {
+            System.out.println("a");
             var statement = "SELECT id, whiteUsername, blackUsername, gameName, game FROM games";
             try (var ps = conn.prepareStatement(statement)) {
+                System.out.println("b");
                 try (var rs = ps.executeQuery()) {
+                    System.out.println("c");
                     while (rs.next()) {
+                        System.out.println("d");
                         result.add(readGame(rs));
                     }
                 }
             }
         } catch (Exception e) {
+            System.out.printf("error: %s\n", e.getMessage());
             throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
         }
+        System.out.println(result);
+        System.out.println(result.getFirst());
+        System.out.println(result.getLast());
         return result;
     }
 
@@ -80,7 +89,7 @@ public class MySQLGameDAO implements GameDAO {
         var whiteUsername = rs.getString("whiteUsername");
         var blackUsername = rs.getString("blackUsername");
         var gameName = rs.getString("gameName");
-        var json = rs.getString("json");
+        var json = rs.getString("game");
         var game = new Gson().fromJson(json, ChessGame.class);
         return new GameData(id, whiteUsername, blackUsername, gameName, game);
     }
