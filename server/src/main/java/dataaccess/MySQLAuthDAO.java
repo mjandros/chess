@@ -14,7 +14,7 @@ public class MySQLAuthDAO implements AuthDAO {
         var statement = "INSERT INTO auths (authToken, username) VALUES (?, ?)";
         executeUpdate(statement, authData.authToken(), authData.username());
     }
-    public AuthData getAuth(String authToken) throws ResponseException {
+    public AuthData getAuth(String authToken) throws ResponseException, DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT authToken, username FROM auths WHERE authToken=?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -28,7 +28,7 @@ public class MySQLAuthDAO implements AuthDAO {
         } catch (Exception e) {
             throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
         }
-        throw new ResponseException(400, "Bad request");
+        throw new DataAccessException("Token does not exist");
     }
     public void deleteAuth(String authToken) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
