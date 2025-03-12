@@ -53,10 +53,8 @@ public class DatabaseTests {
         //create a game
         String gameName = "Test Game";
         TestCreateResult createResult = serverFacade.createGame(new TestCreateRequest(gameName), auth);
-        printTables();
         //join the game
         serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID()), auth);
-        printTables();
         Assertions.assertTrue(initialRowCount < getDatabaseRows(), "No new data added to database");
 
         // Test that we can read the data after a restart
@@ -162,38 +160,6 @@ public class DatabaseTests {
         throw new ClassNotFoundException("Unable to load database in order to verify persistence. " +
                 "Are you using DatabaseManager to set your credentials? " +
                 "Did you edit the signature of the getConnection method?");
-    }
-
-    private int printTables() {
-        AtomicInteger rows = new AtomicInteger();
-        executeForAllTables((tableName, connection) -> {
-            System.out.println("\n--- Table: " + tableName + " ---");
-
-            try (var statement = connection.createStatement()) {
-                var sql = "SELECT * FROM " + tableName; // Select all rows
-                try (var resultSet = statement.executeQuery(sql)) {
-                    ResultSetMetaData metaData = resultSet.getMetaData();
-                    int columnCount = metaData.getColumnCount();
-
-                    // Print column names
-                    for (int i = 1; i <= columnCount; i++) {
-                        System.out.print(metaData.getColumnName(i) + "\t");
-                    }
-                    System.out.println();
-
-                    // Print each row
-                    while (resultSet.next()) {
-                        for (int i = 1; i <= columnCount; i++) {
-                            System.out.print(resultSet.getString(i) + "\t");
-                        }
-                        System.out.println();
-                        rows.incrementAndGet();
-                    }
-                }
-            }
-        });
-
-        return rows.get();
     }
 
     @FunctionalInterface

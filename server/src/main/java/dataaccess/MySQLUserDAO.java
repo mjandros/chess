@@ -24,13 +24,9 @@ public class MySQLUserDAO implements UserDAO {
         }
         var statement = "INSERT INTO users (username, pw, email) VALUES (?, ?, ?)";
         String hashedPassword = hashPassword(userData.password());
-        System.out.printf("clear pw: %s; hashed pw: %s\n", userData.password(), hashedPassword);
         executeUpdate(statement, userData.username(), hashedPassword, userData.email());
     }
     public UserData getUser(String username) throws ResponseException {
-        System.out.println("getting user");
-        printUsers();
-        System.out.println("did they print");
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, pw, email FROM users WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -48,29 +44,6 @@ public class MySQLUserDAO implements UserDAO {
     }
     public void clearUsers() throws ResponseException {
         executeUpdate("TRUNCATE users");
-    }
-
-    public void printUsers() throws ResponseException {
-        String query = "SELECT username, pw, email FROM users";
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(query);
-             var rs = ps.executeQuery()) {
-
-            // Print column headers
-            System.out.println("Username\tPassword\tEmail");
-
-            // Iterate over the result set and print each row
-            while (rs.next()) {
-                String username = rs.getString("username");
-                String pw = rs.getString("pw");
-                String email = rs.getString("email");
-
-                System.out.printf("%s\t%s\t%s\n", username, pw, email);
-            }
-
-        } catch (SQLException | DataAccessException e) {
-            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
-        }
     }
 
     String hashPassword(String clearTextPassword) {
