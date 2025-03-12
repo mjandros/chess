@@ -28,7 +28,7 @@ public class MySQLAuthDAO implements AuthDAO {
         } catch (Exception e) {
             throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
         }
-        return null;
+        throw new ResponseException(500, "Unable to read data");
     }
     public void deleteAuth(String authToken) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {

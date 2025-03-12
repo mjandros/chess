@@ -70,7 +70,6 @@ public class MySQLGameDAO implements GameDAO {
     }
 
     public void clearGames() throws ResponseException {
-        System.out.println("clearing games");
         executeUpdate("TRUNCATE games");
     }
 
