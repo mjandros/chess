@@ -15,12 +15,15 @@ public class MySQLAuthDAO implements AuthDAO {
         executeUpdate(statement, authData.authToken(), authData.username());
     }
     public AuthData getAuth(String authToken) throws ResponseException {
+        System.out.println("getting auth");
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT authToken, username FROM auths WHERE authToken=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, authToken);
                 try (var rs = ps.executeQuery()) {
+                    System.out.println("trying rs");
                     if (rs.next()) {
+                        System.out.println("returning readAuth");
                         return readAuth(rs);
                     }
                 }
@@ -31,7 +34,19 @@ public class MySQLAuthDAO implements AuthDAO {
         return null;
     }
     public void deleteAuth(String authToken) throws ResponseException {
-        executeUpdate(String.format("DELETE FROM auths WHERE authToken = %s", authToken));
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "DELETE FROM auths WHERE authToken = ?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                System.out.println("gonna execute");
+                int rows = ps.executeUpdate();
+                if (rows == 0) {
+                    throw new DataAccessException("Token does not exist");
+                }
+            }
+        } catch (Exception e) {
+            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
     public void clearAuths() throws ResponseException {
         executeUpdate("TRUNCATE auths");
