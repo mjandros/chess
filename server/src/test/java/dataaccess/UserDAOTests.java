@@ -57,4 +57,25 @@ public class UserDAOTests {
         Assertions.assertNull(userDAO.getUser("username3"), "user #3 was not erased");
     }
 
+    @Test
+    @Order(4)
+    @DisplayName("Positive createUser test")
+    public void createUserNegTest() throws ResponseException, DataAccessException {
+        UserData userData = new UserData("username", "password", "email");
+
+        userDAO.clearUsers();
+        userDAO.createUser(userData);
+
+        Assertions.assertThrows(DataAccessException.class, () -> userDAO.createUser(userData), "Username should have already been taken");
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Negative getUser test")
+    public void getUserNegTest() throws ResponseException {
+        userDAO.clearUsers();
+
+        Assertions.assertNull(userDAO.getUser("username"), "User does not exist");
+    }
+
 }
