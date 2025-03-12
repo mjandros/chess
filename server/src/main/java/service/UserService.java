@@ -62,7 +62,6 @@ public class UserService {
         try {
             authDAO.getAuth(authToken);
             authDAO.deleteAuth(authToken);
-            System.out.println("deleted");
         } catch (DataAccessException e) {
             throw new ResponseException(401, "Error: unauthorized");
         }

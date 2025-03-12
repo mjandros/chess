@@ -30,8 +30,11 @@ public class GameService {
 
     public CreateGameResult createGame(String authToken, CreateGameRequest req) throws ResponseException {
         try {
+            System.out.println("createGame");
             authDAO.getAuth(authToken);
+            System.out.println("got auth");
             int gameID = gameDAO.createGame(req.gameName());
+            System.out.println("created game");
             return new CreateGameResult(gameID);
         } catch (DataAccessException e) {
             throw new ResponseException(401, "Error: unauthorized");

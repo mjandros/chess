@@ -6,6 +6,7 @@ import exception.ResponseException;
 import model.GameData;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -69,6 +70,7 @@ public class MySQLGameDAO implements GameDAO {
     }
 
     public void clearGames() throws ResponseException {
+        System.out.println("clearing games");
         executeUpdate("TRUNCATE games");
     }
 
@@ -97,12 +99,10 @@ public class MySQLGameDAO implements GameDAO {
                     }
                 }
                 ps.executeUpdate();
-
                 var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
-
                 return 0;
             }
         } catch (Exception e) {
