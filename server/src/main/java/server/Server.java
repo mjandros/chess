@@ -22,10 +22,10 @@ public class Server {
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
 
-    public Server() {
-        userDAO = new MemoryUserDAO();
-        gameDAO = new MemoryGameDAO();
-        authDAO = new MemoryAuthDAO();
+    public Server() throws Exception {
+        userDAO = new MySQLUserDAO();
+        gameDAO = new MySQLGameDAO();
+        authDAO = new MySQLAuthDAO();
 
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);

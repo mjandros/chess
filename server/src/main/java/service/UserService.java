@@ -39,7 +39,8 @@ public class UserService {
         if (userData == null) {
             throw new ResponseException(401, "Error: unauthorized");
         }
-        if (!verifyUser(req.password(), userData.password())) {
+        System.out.printf("reg: %s, hashed: %s\n", req.password(), readHashedPassword(req.username()));
+        if (!verifyUser(req.password(), readHashedPassword(req.username()))) {
             throw new ResponseException(401, "Error: unauthorized");
         }
         AuthData authData = new AuthData(UUID.randomUUID().toString(), userData.username());
@@ -64,5 +65,10 @@ public class UserService {
         } catch (DataAccessException e) {
             throw new ResponseException(401, "Error: unauthorized");
         }
+    }
+
+    private String readHashedPassword(String username) throws ResponseException {
+        UserData user = userDAO.getUser(username);
+        return user.password();
     }
 }

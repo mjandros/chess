@@ -5,23 +5,36 @@ import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class MySQLUserDAO implements UserDAO {
 
+    //private final UserDAO memory;
+
     public MySQLUserDAO() throws Exception {
         configureDatabaseCaller();
+        //memory = new MemoryUserDAO();
     }
-    public void createUser(UserData userData) throws ResponseException {
+    public void createUser(UserData userData) throws ResponseException, DataAccessException {
+        if (userExists(userData.username())) {
+            throw new DataAccessException("User already exists");
+        }
+        if (userData.username() == null || userData.password() == null) {
+            throw new DataAccessException("Username or password is null");
+        }
         var statement = "INSERT INTO users (username, pw, email) VALUES (?, ?, ?)";
-        executeUpdate(statement, userData.username(), hashPassword(userData.password()), userData.email());
+        String hashedPassword = hashPassword(userData.password());
+        System.out.printf("clear pw: %s; hashed pw: %s\n", userData.password(), hashedPassword);
+        executeUpdate(statement, userData.username(), hashedPassword, userData.email());
     }
     public UserData getUser(String username) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, pw, email FROM users WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readUser(rs);
@@ -57,13 +70,6 @@ public class MySQLUserDAO implements UserDAO {
                     else if (param == null) ps.setNull(i + 1, NULL);
                 }
                 ps.executeUpdate();
-
-//                var rs = ps.getGeneratedKeys();
-//                if (rs.next()) {
-//                    return rs.getInt(1);
-//                }
-//
-//                return 0;
             }
         } catch (Exception e) {
             throw new ResponseException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
@@ -76,7 +82,7 @@ public class MySQLUserDAO implements UserDAO {
               `username` varchar(255) NOT NULL,
               `pw` varchar(255) NOT NULL,
               `email` varchar(255) NOT NULL,
-              PRIMARY KEY (`username`),
+              PRIMARY KEY (`username`)
             )
             """
     };
@@ -96,5 +102,21 @@ public class MySQLUserDAO implements UserDAO {
         } catch (Exception ex) {
             throw new Exception(String.format("Unable to configure database: %s", ex.getMessage()));
         }
+    }
+
+    public boolean userExists(String username) throws ResponseException {
+        String query = "SELECT COUNT(*) FROM users WHERE username = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(query)) {
+            ps.setString(1, username);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception ex) {
+            throw new ResponseException(500, String.format("Unable to configure database: %s", ex.getMessage()));
+        }
+        return false;
     }
 }
