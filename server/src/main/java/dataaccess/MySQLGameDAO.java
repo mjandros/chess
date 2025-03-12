@@ -45,7 +45,7 @@ public class MySQLGameDAO implements GameDAO {
     public Collection<GameData> listGames() throws ResponseException {
         var result = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM games";
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName, game FROM games";
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -62,11 +62,13 @@ public class MySQLGameDAO implements GameDAO {
     public void updatePlayer(int gameID, String playerColor, String username) throws ResponseException {
         var statement = "";
         if (Objects.equals(playerColor, "WHITE")) {
-            statement = String.format("UPDATE games SET whiteUsername = %s WHERE id = %d", username, gameID);
+            statement = "UPDATE games SET whiteUsername = ? WHERE id = ?";
+        } else if (Objects.equals(playerColor, "BLACK")) {
+            statement = "UPDATE games SET blackUsername = ? WHERE id = ?";
         } else {
-            statement = String.format("UPDATE games SET blackUsername = %s WHERE id = %d", username, gameID);
+            throw new ResponseException(500, "Invalid player color");
         }
-        executeUpdate(statement);
+        executeUpdate(statement, username, gameID);
     }
 
     public void clearGames() throws ResponseException {
@@ -85,7 +87,9 @@ public class MySQLGameDAO implements GameDAO {
 
     private int executeUpdate(String statement, Object... params) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
+            System.out.println("A");
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                System.out.println("B");
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
                     switch (param) {
@@ -97,11 +101,15 @@ public class MySQLGameDAO implements GameDAO {
                         }
                     }
                 }
-                ps.executeUpdate();
+                System.out.println(ps);
+                int rows = ps.executeUpdate();
+                System.out.println(rows);
                 var rs = ps.getGeneratedKeys();
                 if (rs.next()) {
+                    System.out.println("E");
                     return rs.getInt(1);
                 }
+                System.out.println("F");
                 return 0;
             }
         } catch (Exception e) {
