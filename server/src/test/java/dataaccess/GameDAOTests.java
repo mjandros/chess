@@ -126,6 +126,7 @@ public class GameDAOTests {
 
         gameDAO.updatePlayer(1, "WHITE", "whiteUsername");
 
-        Assertions.assertThrows(DataAccessException.class, () -> gameDAO.updatePlayer(1, "WHITE", "otherWhiteUsername"), "whiteUsername should already be taken");
+        Assertions.assertThrows(DataAccessException.class, () ->
+                gameDAO.updatePlayer(1, "WHITE", "otherWhiteUsername"), "whiteUsername should already be taken");
     }
 }

@@ -104,8 +104,7 @@ public class MySQLGameDAO implements GameDAO {
                         case Integer p -> ps.setInt(i + 1, p);
                         case ChessGame p -> ps.setString(i + 1, p.toString());
                         case null -> ps.setNull(i + 1, NULL);
-                        default -> {
-                        }
+                        default -> doNothing();
                     }
                 }
                 ps.executeUpdate();
@@ -119,6 +118,8 @@ public class MySQLGameDAO implements GameDAO {
             throw new ResponseException(500, String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
+
+    void doNothing() {}
 
     private final String[] createStatements = {
             """
