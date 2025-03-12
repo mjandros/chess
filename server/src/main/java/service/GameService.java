@@ -47,13 +47,17 @@ public class GameService {
             gameDAO.updatePlayer(req.gameID(), req.playerColor(), authData.username());
             return new JoinGameResult();
         } catch (DataAccessException e) {
+            System.out.println("caught DAE");
             if (e.getMessage().equals("Token does not exist")){
                 throw new ResponseException(401, "Error: unauthorized");
             } else if (e.getMessage().equals("already taken")) {
                 throw new ResponseException(403, "Error: already taken");
             } else {
+                System.out.println("bad request");
                 throw new ResponseException(400, "Error: bad request");
             }
+        } catch (Exception e) {
+            throw new ResponseException(400, "Error: bad request");
         }
     }
 

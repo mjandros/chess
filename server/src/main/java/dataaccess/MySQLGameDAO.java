@@ -28,19 +28,22 @@ public class MySQLGameDAO implements GameDAO {
 
     public GameData getGame(int id) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, game FROM games WHERE id=?";
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName, game FROM games WHERE id=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, id);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readGame(rs);
+                    } else {
+                        System.out.println("Game don't exist");
+                        throw new DataAccessException("Game does not exist");
                     }
                 }
             }
         } catch (Exception e) {
             throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
         }
-        return null;    }
+    }
 
     public Collection<GameData> listGames() throws ResponseException {
         System.out.println("listing games");
@@ -69,6 +72,8 @@ public class MySQLGameDAO implements GameDAO {
     }
 
     public void updatePlayer(int gameID, String playerColor, String username) throws ResponseException, DataAccessException {
+        System.out.println("updating player");
+        getGame(gameID);
         var statement = "";
         if (Objects.equals(playerColor, "WHITE")) {
             statement = "UPDATE games SET whiteUsername = ? WHERE id = ?";
