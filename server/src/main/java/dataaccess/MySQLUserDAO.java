@@ -5,14 +5,13 @@ import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class MySQLUserDAO implements UserDAO {
 
-    public MySQLUserDAO() throws Exception {
+    public MySQLUserDAO() {
         configureDatabaseCaller();
     }
     public void createUser(UserData userData) throws ResponseException, DataAccessException {
@@ -86,20 +85,23 @@ public class MySQLUserDAO implements UserDAO {
             """
     };
 
-    private void configureDatabaseCaller() throws Exception {
+    private void configureDatabaseCaller() {
         configureDatabase(createStatements);
     }
 
-    static void configureDatabase(String[] createStatements) throws Exception {
-        DatabaseManager.createDatabase();
+    static void configureDatabase(String[] createStatements) {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (Exception ignored) {
+
+        }
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : createStatements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
             }
-        } catch (Exception ex) {
-            throw new Exception(String.format("Unable to configure database: %s", ex.getMessage()));
+        } catch (Exception ignored) {
         }
     }
 

@@ -22,7 +22,7 @@ public class Server {
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
 
-    public Server() throws Exception {
+    public Server() {
         userDAO = new MySQLUserDAO();
         gameDAO = new MySQLGameDAO();
         authDAO = new MySQLAuthDAO();

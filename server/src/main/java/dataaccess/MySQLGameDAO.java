@@ -16,7 +16,7 @@ import static java.sql.Types.NULL;
 
 public class MySQLGameDAO implements GameDAO {
 
-    public MySQLGameDAO() throws Exception {
+    public MySQLGameDAO() {
         configureDatabaseCaller();
     }
     public int createGame(String gameName) throws ResponseException {
@@ -134,7 +134,7 @@ public class MySQLGameDAO implements GameDAO {
             """
     };
 
-    private void configureDatabaseCaller() throws Exception {
+    private void configureDatabaseCaller() {
         MySQLUserDAO.configureDatabase(createStatements);
     }
 }

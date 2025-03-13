@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 
 public class MySQLAuthDAO implements AuthDAO {
 
-    public MySQLAuthDAO() throws Exception {
+    public MySQLAuthDAO() {
         configureDatabaseCaller();
     }
     public void createAuth(AuthData authData) throws ResponseException {
@@ -68,7 +68,7 @@ public class MySQLAuthDAO implements AuthDAO {
             """
     };
 
-    private void configureDatabaseCaller() throws Exception {
+    private void configureDatabaseCaller() {
         MySQLUserDAO.configureDatabase(createStatements);
     }
 }
