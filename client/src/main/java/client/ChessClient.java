@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class ChessClient {
     private String name = null;
-    private boolean signedIn = false;
+    public boolean loggedIn = false;
     private final String serverUrl;
     private final ServerFacade server;
 
@@ -58,7 +58,7 @@ public class ChessClient {
     }
 
     public String help() {
-        if (signedIn) {
+        if (loggedIn) {
             return """
                     register <USERNAME> <PASSWORD> <EMAIL> - create an account
                     login <USERNAME> <PASSWORD> - log in to an existing account
