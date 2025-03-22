@@ -36,29 +36,29 @@ public class ChessClient {
         }
     }
     public String login(String... params) throws ResponseException {
-        return "";
+        return "logged in";
     }
     public String register(String... params) throws ResponseException {
-        return "";
+        return "registered";
     }
     public String logout(){
-        return "";
+        return "logged out";
     }
     public String createGame(String... params) throws ResponseException {
-        return "";
+        return "created";
     }
     public String listGames() throws ResponseException {
-        return "";
+        return "list";
     }
     public String playGame(String... params) throws ResponseException {
-        return "";
+        return "playing";
     }
     public String observeGame(String... params) throws ResponseException {
-        return "";
+        return "observing";
     }
 
     public String help() {
-        if (loggedIn) {
+        if (!loggedIn) {
             return """
                     register <USERNAME> <PASSWORD> <EMAIL> - create an account
                     login <USERNAME> <PASSWORD> - log in to an existing account

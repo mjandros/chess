@@ -12,7 +12,7 @@ public class Repl {
     }
 
     public void run() {
-        System.out.println("\u265F Welcome to 240 chess. Type 'help' to get started.");
+        System.out.println(WHITE_PAWN + " Welcome to 240 chess. Type 'help' to get started." + BLACK_PAWN);
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -36,6 +36,6 @@ public class Repl {
         if (client.loggedIn) {
             status = "[LOGGED_IN]";
         }
-        System.out.print("\n" + RESET_TEXT_COLOR + status + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + RESET_TEXT_COLOR + status + " >>> " + SET_TEXT_COLOR_GREEN);
     }
 }
