@@ -9,10 +9,10 @@ import java.io.*;
 import java.net.*;
 
 public class ServerFacade {
-    private final String serverUrl;
+    private final int port;
 
-    public ServerFacade(String serverUrl){
-        this.serverUrl = serverUrl;
+    public ServerFacade(int port){
+        this.port = port;
     }
     public LoginResult login(String username, String password) throws ResponseException {
         LoginRequest req = new LoginRequest(username, password);
@@ -26,9 +26,17 @@ public class ServerFacade {
         LogoutRequest req = new LogoutRequest();
         return makeRequest("DELETE", "/session", req, LogoutResult.class);
     }
+    public CreateGameResult createGame(String gameName) throws ResponseException {
+        CreateGameRequest req = new CreateGameRequest(gameName);
+        return makeRequest("POST", "/game", req, CreateGameResult.class);
+    }
+    public ListGamesResult listGames() throws ResponseException {
+        ListGamesRequest req = new ListGamesRequest();
+        return makeRequest("GET", "/game", req, ListGamesResult.class);
+    }
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
-            URL url = (new URI(serverUrl + path)).toURL();
+            URL url = (new URI("http://localhost:" + port + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);

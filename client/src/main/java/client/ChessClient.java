@@ -7,12 +7,12 @@ import java.util.Arrays;
 public class ChessClient {
     private String name = null;
     public boolean loggedIn = false;
-    private final String serverUrl;
+    private final int port;
     private final ServerFacade server;
 
-    public ChessClient(String serverUrl){
-        this.serverUrl = serverUrl;
-        server = new ServerFacade(serverUrl);
+    public ChessClient(int port){
+        this.port = port;
+        server = new ServerFacade(port);
     }
 
     public String eval(String input) {
