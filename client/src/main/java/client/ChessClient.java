@@ -84,19 +84,22 @@ public class ChessClient {
             loggedIn = false;
             return "Successfully logged out.";
         } catch (Exception e) {
-            throw new ResponseException(400, "Failed to create account: " + e.getMessage());
+            throw new ResponseException(400, "Failed to log out: " + e.getMessage());
         }
     }
     public String createGame(String... params) throws ResponseException {
         if (!loggedIn) {
             return "Must be logged in to create a game.";
         }
-        try {
-            server.createGame(params[0], authToken);
-            return String.format("Successfully created game %s.", params[0]);
-        } catch (Exception e) {
-            throw new ResponseException(400, "Failed to create account: " + e.getMessage());
+        if (params.length == 1) {
+            try {
+                server.createGame(params[0], authToken);
+                return String.format("Successfully created %s.", params[0]);
+            } catch (Exception e) {
+                throw new ResponseException(400, "Failed to create game: " + e.getMessage());
+            }
         }
+        throw new ResponseException(400, "Expected: <NAME>");
     }
     public String listGames() throws ResponseException {
         if (!loggedIn) {
@@ -132,13 +135,47 @@ public class ChessClient {
         if (!loggedIn) {
             return "Must be logged in to play a game.";
         }
-        return "playing";
+        if (params.length == 2 && (params[1].equalsIgnoreCase("WHITE")
+                || params[1].equalsIgnoreCase("BLACK"))) {
+            try {
+                if (gameNumbers.isEmpty()) {
+                    return "Must view games before joining. Try typing 'list'.";
+                }
+                GameData game = gameNumbers.get(Integer.parseInt(params[0]));
+                if (game == null) {
+                    return "Game does not exist.";
+                }
+                int id = game.gameID();
+                server.joinGame(params[1].toUpperCase(), id, authToken);
+                return String.format("Successfully joined %s as %s", game.gameName(), params[1].toUpperCase());
+            } catch (Exception e) {
+                throw new ResponseException(400, "Failed to join game: " + e.getMessage());
+            }
+        }
+        throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
     public String observeGame(String... params) throws ResponseException {
         if (!loggedIn) {
             return "Must be logged in to observe a game.";
         }
-        return "observing";
+        if (params.length == 2 && (params[1].equalsIgnoreCase("WHITE")
+                || params[1].equalsIgnoreCase("BLACK"))) {
+            try {
+                if (gameNumbers.isEmpty()) {
+                    return "Must view games before joining. Try typing 'list'.";
+                }
+                GameData game = gameNumbers.get(Integer.parseInt(params[0]));
+                if (game == null) {
+                    return "Game does not exist.";
+                }
+                int id = game.gameID();
+                server.joinGame(null, id, authToken);
+                return String.format("Successfully joined %s as an observer.", game.gameName());
+            } catch (Exception e) {
+                throw new ResponseException(400, "Failed to join game: " + e.getMessage());
+            }
+        }
+        throw new ResponseException(400, "Expected: <ID>");
     }
 
     public String help() {
