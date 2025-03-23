@@ -36,11 +36,30 @@ public class ChessClient {
         }
     }
     public String login(String... params) throws ResponseException {
-
-        return "logged in";
+        if (params.length == 2) {
+            try {
+                server.login(params[0], params[1]);
+                name = params[0];
+                loggedIn = true;
+                return String.format("You signed in as %s.", name);
+            } catch (Exception e) {
+                throw new ResponseException(400, "Username or password is incorrect.");
+            }
+        }
+        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
     }
     public String register(String... params) throws ResponseException {
-        return "registered";
+        if (params.length == 3) {
+            try {
+                server.register(params[0], params[1], params[2]);
+                name = params[0];
+                loggedIn = true;
+                return String.format("You signed in as %s.", name);
+            } catch (Exception e) {
+                throw new ResponseException(400, "Failed to create account: " + e.getMessage());
+            }
+        }
+        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
     public String logout(){
         return "logged out";
