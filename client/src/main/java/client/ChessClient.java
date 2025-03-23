@@ -2,11 +2,10 @@ package client;
 
 import exception.ResponseException;
 import model.GameData;
+import service.results.*;
+import service.requests.*;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ChessClient {
     private String name = null;
@@ -14,10 +13,12 @@ public class ChessClient {
     private final int port;
     private final ServerFacade server;
     private Map<Integer, GameData> gameNumbers;
+    private String authToken;
 
     public ChessClient(int port){
         this.port = port;
         server = new ServerFacade(port);
+        gameNumbers = new HashMap<>();
     }
 
     public String eval(String input) {
@@ -43,10 +44,11 @@ public class ChessClient {
     public String login(String... params) throws ResponseException {
         if (params.length == 2) {
             try {
-                server.login(params[0], params[1]);
+                LoginResult res = server.login(params[0], params[1]);
+                authToken = res.authToken();
                 name = params[0];
                 loggedIn = true;
-                return String.format("You signed in as %s.", name);
+                return String.format("You signed in as %s. authToken = %s", name, authToken);
             } catch (Exception e) {
                 throw new ResponseException(400, "Username or password is incorrect.");
             }
@@ -56,7 +58,8 @@ public class ChessClient {
     public String register(String... params) throws ResponseException {
         if (params.length == 3) {
             try {
-                server.register(params[0], params[1], params[2]);
+                RegisterResult res = server.register(params[0], params[1], params[2]);
+                authToken = res.authToken();
                 name = params[0];
                 loggedIn = true;
                 return String.format("You signed in as %s.", name);
@@ -75,7 +78,7 @@ public class ChessClient {
     public String listGames() throws ResponseException {
         try {
             gameNumbers.clear();
-            List<GameData> games = server.listGames().games().stream().toList();
+            List<GameData> games = server.listGames(authToken).games().stream().toList();
             String output = "";
             for (int i = 1; i <= games.size(); i++) {
                 GameData currentGame = games.get(i - 1);

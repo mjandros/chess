@@ -16,36 +16,44 @@ public class ServerFacade {
     }
     public LoginResult login(String username, String password) throws ResponseException {
         LoginRequest req = new LoginRequest(username, password);
-        return makeRequest("POST", "/session", req, LoginResult.class);
+        return makeRequest("POST", "/session", req, LoginResult.class, null);
     }
     public RegisterResult register(String username, String password, String email) throws ResponseException {
         RegisterRequest req = new RegisterRequest(username, password, email);
-        return makeRequest("POST", "/user", req, RegisterResult.class);
+        return makeRequest("POST", "/user", req, RegisterResult.class, null);
     }
-    public LogoutResult logout() throws ResponseException {
+    public LogoutResult logout(String authToken) throws ResponseException {
         LogoutRequest req = new LogoutRequest();
-        return makeRequest("DELETE", "/session", req, LogoutResult.class);
+        return makeRequest("DELETE", "/session", req, LogoutResult.class, authToken);
     }
-    public CreateGameResult createGame(String gameName) throws ResponseException {
+    public CreateGameResult createGame(String gameName, String authToken) throws ResponseException {
         CreateGameRequest req = new CreateGameRequest(gameName);
-        return makeRequest("POST", "/game", req, CreateGameResult.class);
+        return makeRequest("POST", "/game", req, CreateGameResult.class, authToken);
     }
-    public ListGamesResult listGames() throws ResponseException {
+    public ListGamesResult listGames(String authToken) throws ResponseException {
         ListGamesRequest req = new ListGamesRequest();
-        return makeRequest("GET", "/game", req, ListGamesResult.class);
+        return makeRequest("GET", "/game", req, ListGamesResult.class, authToken);
     }
-    public JoinGameResult joinGame(String playerColor, int gameID) throws ResponseException {
+    public JoinGameResult joinGame(String playerColor, int gameID, String authToken) throws ResponseException {
         JoinGameRequest req = new JoinGameRequest(playerColor, gameID);
-        return makeRequest("PUT", "/game", req, JoinGameResult.class);
+        return makeRequest("PUT", "/game", req, JoinGameResult.class, authToken);
     }
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken)
+            throws ResponseException {
         try {
             URL url = (new URI("http://localhost:" + port + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
-            http.setDoOutput(true);
+            if (authToken != null) {
+                http.addRequestProperty("authorization", authToken);
+            }
+            if (method.equals("GET") || method.equals("DELETE")) {
+                http.setDoOutput(false);
+            } else {
+                http.setDoOutput(true);
+                writeBody(request, http);
+            }
 
-            writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
