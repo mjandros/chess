@@ -48,7 +48,7 @@ public class ChessClient {
                 authToken = res.authToken();
                 name = params[0];
                 loggedIn = true;
-                return String.format("You signed in as %s. authToken = %s", name, authToken);
+                return String.format("You signed in as %s.", name);
             } catch (Exception e) {
                 throw new ResponseException(400, "Username or password is incorrect.");
             }
@@ -85,6 +85,9 @@ public class ChessClient {
                 gameNumbers.put(i, currentGame);
                 output += String.format("%d - %s\n\tWHITE - %s | BLACK - %s\n",
                         currentGame.gameID(), currentGame.gameName(), currentGame.whiteUsername(), currentGame.blackUsername());
+            }
+            if (output.isEmpty()) {
+                output = "There are currently no ongoing games.";
             }
             return output;
         } catch (Exception e) {
