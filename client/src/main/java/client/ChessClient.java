@@ -3,17 +3,18 @@ package client;
 import exception.ResponseException;
 import model.GameData;
 import service.results.*;
-import service.requests.*;
 
+import static ui.EscapeSequences.*;
 import java.util.*;
 
 public class ChessClient {
     private String name = null;
-    public boolean loggedIn = false;
+    public State state = State.LOGGEDOUT;
     private final int port;
     private final ServerFacade server;
     private Map<Integer, GameData> gameNumbers;
     private String authToken;
+
 
     public ChessClient(int port){
         this.port = port;
@@ -42,7 +43,7 @@ public class ChessClient {
         }
     }
     public String login(String... params) throws ResponseException {
-        if (loggedIn) {
+        if (state == State.LOGGEDIN) {
             return "Already logged in.";
         }
         if (params.length == 2) {
@@ -50,7 +51,7 @@ public class ChessClient {
                 LoginResult res = server.login(params[0], params[1]);
                 authToken = res.authToken();
                 name = params[0];
-                loggedIn = true;
+                state = State.LOGGEDIN;
                 return String.format("You signed in as %s.", name);
             } catch (Exception e) {
                 throw new ResponseException(400, "Username or password is incorrect.");
@@ -59,7 +60,7 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
     }
     public String register(String... params) throws ResponseException {
-        if (loggedIn) {
+        if (state == State.LOGGEDIN) {
             return "Already logged in.";
         }
         if (params.length == 3) {
@@ -67,7 +68,7 @@ public class ChessClient {
                 RegisterResult res = server.register(params[0], params[1], params[2]);
                 authToken = res.authToken();
                 name = params[0];
-                loggedIn = true;
+                state = State.LOGGEDIN;
                 return String.format("You signed in as %s.", name);
             } catch (Exception e) {
                 throw new ResponseException(400, "Failed to create account: " + e.getMessage());
@@ -76,19 +77,19 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
     public String logout() throws ResponseException {
-        if (!loggedIn) {
+        if (state == State.LOGGEDOUT) {
             return "Already logged out.";
         }
         try {
             server.logout(authToken);
-            loggedIn = false;
+            state = State.LOGGEDOUT;
             return "Successfully logged out.";
         } catch (Exception e) {
             throw new ResponseException(400, "Failed to log out: " + e.getMessage());
         }
     }
     public String createGame(String... params) throws ResponseException {
-        if (!loggedIn) {
+        if (state == State.LOGGEDOUT) {
             return "Must be logged in to create a game.";
         }
         if (params.length == 1) {
@@ -102,7 +103,7 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <NAME>");
     }
     public String listGames() throws ResponseException {
-        if (!loggedIn) {
+        if (state == State.LOGGEDOUT) {
             return "Must be logged in to view ongoing games.";
         }
         try {
@@ -132,7 +133,7 @@ public class ChessClient {
         }
     }
     public String playGame(String... params) throws ResponseException {
-        if (!loggedIn) {
+        if (state == State.LOGGEDOUT) {
             return "Must be logged in to play a game.";
         }
         if (params.length == 2 && (params[1].equalsIgnoreCase("WHITE")
@@ -155,7 +156,7 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
     public String observeGame(String... params) throws ResponseException {
-        if (!loggedIn) {
+        if (state == State.LOGGEDOUT) {
             return "Must be logged in to observe a game.";
         }
         if (params.length == 2 && (params[1].equalsIgnoreCase("WHITE")
@@ -179,7 +180,7 @@ public class ChessClient {
     }
 
     public String help() {
-        if (!loggedIn) {
+        if (state == State.LOGGEDOUT) {
             return """
                     register <USERNAME> <PASSWORD> <EMAIL> - create an account
                     login <USERNAME> <PASSWORD> - log in to an existing account
