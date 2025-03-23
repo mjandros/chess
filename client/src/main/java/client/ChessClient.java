@@ -91,7 +91,12 @@ public class ChessClient {
         if (!loggedIn) {
             return "Must be logged in to create a game.";
         }
-        return "created";
+        try {
+            server.createGame(params[0], authToken);
+            return String.format("Successfully created game %s.", params[0]);
+        } catch (Exception e) {
+            throw new ResponseException(400, "Failed to create account: " + e.getMessage());
+        }
     }
     public String listGames() throws ResponseException {
         if (!loggedIn) {
@@ -104,8 +109,16 @@ public class ChessClient {
             for (int i = 1; i <= games.size(); i++) {
                 GameData currentGame = games.get(i - 1);
                 gameNumbers.put(i, currentGame);
-                output += String.format("%d - %s\n\tWHITE - %s | BLACK - %s\n",
-                        currentGame.gameID(), currentGame.gameName(), currentGame.whiteUsername(), currentGame.blackUsername());
+                String white = currentGame.whiteUsername();
+                String black = currentGame.blackUsername();
+                if (white == null) {
+                    white = "Empty";
+                }
+                if (black == null) {
+                    black = "Empty";
+                }
+                output += String.format("%d - %s\n\tWHITE - %s\n\tBLACK - %s\n",
+                        currentGame.gameID(), currentGame.gameName(), white, black);
             }
             if (output.isEmpty()) {
                 output = "There are currently no ongoing games.";
