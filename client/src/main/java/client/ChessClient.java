@@ -36,6 +36,7 @@ public class ChessClient {
         }
     }
     public String login(String... params) throws ResponseException {
+
         return "logged in";
     }
     public String register(String... params) throws ResponseException {

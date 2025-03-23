@@ -34,6 +34,10 @@ public class ServerFacade {
         ListGamesRequest req = new ListGamesRequest();
         return makeRequest("GET", "/game", req, ListGamesResult.class);
     }
+    public JoinGameResult joinGame(String playerColor, int gameID) throws ResponseException {
+        JoinGameRequest req = new JoinGameRequest(playerColor, gameID);
+        return makeRequest("PUT", "/game", req, JoinGameResult.class);
+    }
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI("http://localhost:" + port + path)).toURL();
