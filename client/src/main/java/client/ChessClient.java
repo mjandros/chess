@@ -42,6 +42,9 @@ public class ChessClient {
         }
     }
     public String login(String... params) throws ResponseException {
+        if (loggedIn) {
+            return "Already logged in.";
+        }
         if (params.length == 2) {
             try {
                 LoginResult res = server.login(params[0], params[1]);
@@ -56,6 +59,9 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
     }
     public String register(String... params) throws ResponseException {
+        if (loggedIn) {
+            return "Already logged in.";
+        }
         if (params.length == 3) {
             try {
                 RegisterResult res = server.register(params[0], params[1], params[2]);
@@ -70,12 +76,21 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
     public String logout(){
+        if (!loggedIn) {
+            return "Already logged out.";
+        }
         return "logged out";
     }
     public String createGame(String... params) throws ResponseException {
+        if (!loggedIn) {
+            return "Must be logged in to create a game.";
+        }
         return "created";
     }
     public String listGames() throws ResponseException {
+        if (!loggedIn) {
+            return "Must be logged in to view ongoing games.";
+        }
         try {
             gameNumbers.clear();
             List<GameData> games = server.listGames(authToken).games().stream().toList();
@@ -95,9 +110,15 @@ public class ChessClient {
         }
     }
     public String playGame(String... params) throws ResponseException {
+        if (!loggedIn) {
+            return "Must be logged in to play a game.";
+        }
         return "playing";
     }
     public String observeGame(String... params) throws ResponseException {
+        if (!loggedIn) {
+            return "Must be logged in to observe a game.";
+        }
         return "observing";
     }
 
