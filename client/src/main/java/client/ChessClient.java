@@ -75,11 +75,17 @@ public class ChessClient {
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
-    public String logout(){
+    public String logout() throws ResponseException {
         if (!loggedIn) {
             return "Already logged out.";
         }
-        return "logged out";
+        try {
+            server.logout(authToken);
+            loggedIn = false;
+            return "Successfully logged out.";
+        } catch (Exception e) {
+            throw new ResponseException(400, "Failed to create account: " + e.getMessage());
+        }
     }
     public String createGame(String... params) throws ResponseException {
         if (!loggedIn) {
