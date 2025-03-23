@@ -1,14 +1,19 @@
 package client;
 
 import exception.ResponseException;
+import model.GameData;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class ChessClient {
     private String name = null;
     public boolean loggedIn = false;
     private final int port;
     private final ServerFacade server;
+    private Map<Integer, GameData> gameNumbers;
 
     public ChessClient(int port){
         this.port = port;
@@ -68,7 +73,20 @@ public class ChessClient {
         return "created";
     }
     public String listGames() throws ResponseException {
-        return "list";
+        try {
+            gameNumbers.clear();
+            List<GameData> games = server.listGames().games().stream().toList();
+            String output = "";
+            for (int i = 1; i <= games.size(); i++) {
+                GameData currentGame = games.get(i - 1);
+                gameNumbers.put(i, currentGame);
+                output += String.format("%d - %s\n\tWHITE - %s | BLACK - %s\n",
+                        currentGame.gameID(), currentGame.gameName(), currentGame.whiteUsername(), currentGame.blackUsername());
+            }
+            return output;
+        } catch (Exception e) {
+            throw new ResponseException(400, "Failed to find games: " + e.getMessage());
+        }
     }
     public String playGame(String... params) throws ResponseException {
         return "playing";
