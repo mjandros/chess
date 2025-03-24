@@ -6,7 +6,9 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
 import model.GameData;
-import service.results.*;
+import model.results.LoginResult;
+import model.results.RegisterResult;
+import model.results.*;
 
 import static ui.EscapeSequences.*;
 import java.util.*;

@@ -2,8 +2,8 @@ package client;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import service.requests.*;
-import service.results.*;
+import model.requests.*;
+import model.results.*;
 
 import java.io.*;
 import java.net.*;

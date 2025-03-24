@@ -1,17 +1,18 @@
 package service;
 
 import exception.ResponseException;
-import model.AuthData;
 import model.GameData;
+import model.results.CreateGameResult;
+import model.results.ListGamesResult;
+import model.results.LoginResult;
+import model.results.RegisterResult;
 import org.junit.jupiter.api.*;
-import service.*;
-import service.requests.*;
-import service.results.*;
+import model.requests.*;
+import model.results.*;
 import dataaccess.*;
 import chess.ChessGame;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

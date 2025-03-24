@@ -2,15 +2,12 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import service.requests.*;
-import service.results.*;
+import model.results.*;
+import model.requests.*;
 import spark.Response;
 import spark.Request;
-import spark.Response;
 import service.UserService;
 import exception.ResponseException;
-
-import java.util.Map;
 
 public class UserHandler {
 

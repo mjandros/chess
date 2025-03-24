@@ -1,13 +1,10 @@
 package service;
 
-import com.google.gson.JsonSyntaxException;
 import dataaccess.*;
 import exception.ResponseException;
 import model.AuthData;
-import service.requests.*;
-import service.results.*;
-import java.util.ArrayList;
-import model.GameData;
+import model.results.*;
+import model.requests.*;
 
 public class GameService {
 

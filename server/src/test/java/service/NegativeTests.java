@@ -5,8 +5,8 @@ import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import service.*;
-import service.requests.*;
-import service.results.*;
+import model.requests.*;
+import model.results.*;
 import dataaccess.*;
 import chess.ChessGame;
 

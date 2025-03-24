@@ -4,10 +4,9 @@ import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
-import org.eclipse.jetty.server.Response;
+import model.results.*;
+import model.requests.*;
 import org.mindrot.jbcrypt.BCrypt;
-import service.requests.*;
-import service.results.*;
 import dataaccess.*;
 import java.util.UUID;
 

@@ -1,13 +1,11 @@
 package handler;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import exception.ResponseException;
-import service.requests.*;
-import service.results.*;
+import model.results.*;
+import model.requests.*;
 import spark.Response;
 import spark.Request;
-import spark.Response;
 import service.AppService;
 
 public class AppHandler {

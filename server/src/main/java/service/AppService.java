@@ -2,8 +2,8 @@ package service;
 
 import dataaccess.*;
 import exception.ResponseException;
-import service.requests.*;
-import service.results.*;
+import model.requests.ClearRequest;
+import model.results.ClearResult;
 
 public class AppService {
 
