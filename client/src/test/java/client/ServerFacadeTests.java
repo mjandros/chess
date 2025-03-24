@@ -56,5 +56,14 @@ public class ServerFacadeTests {
     void logoutNeg() {
         assertThrows(ResponseException.class, () -> facade.logout("fakeToken"));
     }
+    @Test
+    void createGamePos() throws Exception {
+        var authData = facade.register("player1", "password", "p1@email.com");
+        assertDoesNotThrow(() -> facade.createGame("game1", authData.authToken()));
+    }
+    @Test
+    void createGameNeg() {
+        assertThrows(ResponseException.class, () -> facade.createGame("game1", "fakeToken"));
+    }
 
 }
