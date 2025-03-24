@@ -36,8 +36,8 @@ public class ChessClient {
                 case "logout" -> logout();
                 case "create" -> createGame(params);
                 case "list" -> listGames();
-                case "play" -> playGame(params);
-                case "observe" -> observeGame(params);
+                case "play" -> joinGame("play", params);
+                case "observe" -> joinGame("observe", params);
                 case "quit" -> "quit";
                 case "clear" -> clearDB();
                 default -> help();
@@ -146,12 +146,13 @@ public class ChessClient {
             throw new ResponseException(400, "Failed to find games: " + e.getMessage());
         }
     }
-    public String playGame(String... params) throws ResponseException {
+    public String joinGame(String status, String... params) throws ResponseException {
         if (state == State.LOGGEDOUT) {
-            throw new ResponseException(400, "Must be logged in to play a game.");
+            throw new ResponseException(400, "Must be logged in to join a game.");
         }
-        if (params.length == 2 && (params[1].equalsIgnoreCase("WHITE")
-                || params[1].equalsIgnoreCase("BLACK"))) {
+        if ((status.equals("play") && params.length == 2 && (params[1].equalsIgnoreCase("WHITE")
+                || params[1].equalsIgnoreCase("BLACK"))) ||
+                (status.equals("observe") && params.length == 1)) {
             try {
                 if (gameNumbers.isEmpty()) {
                     throw new ResponseException(400, "Must view games before joining. Try typing 'list'.");
@@ -161,47 +162,27 @@ public class ChessClient {
                     throw new ResponseException(400, "Game does not exist.");
                 }
                 int id = game.gameID();
-                server.joinGame(params[1].toUpperCase(), id, authToken);
-                if (params[1].equalsIgnoreCase("WHITE")) {
-                    state = State.INGAMEWHITE;
-                    board = setUpBoard("WHITE", game.game().getBoard());
+                String position = "an observer";
+                if (status.equals("play")) {
+                    position = params[1].toUpperCase();
+                    server.joinGame(position, id, authToken);
+                    if (params[1].equalsIgnoreCase("BLACK")) {
+                        state = State.INGAMEBLACK;
+                    } else {
+                        state = State.INGAMEWHITE;
+                    }
+                    board = setUpBoard(position, game.game().getBoard());
                 } else {
-                    state = State.INGAMEBLACK;
-                    board = setUpBoard("BLACK", game.game().getBoard());
+                    state = State.INGAMEOBSERVER;
+                    board = setUpBoard("WHITE", game.game().getBoard());
                 }
-                return String.format("Successfully joined %s as %s.", game.gameName(), params[1].toUpperCase());
+                return String.format("Successfully joined %s as %s.", game.gameName(), position);
             } catch (Exception e) {
                 throw new ResponseException(400, "Failed to join game: " + e.getMessage());
             }
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
-    public String observeGame(String... params) throws ResponseException {
-        if (state == State.LOGGEDOUT) {
-            throw new ResponseException(400, "Must be logged in to observe a game.");
-        }
-        if (params.length == 2 && (params[1].equalsIgnoreCase("WHITE")
-                || params[1].equalsIgnoreCase("BLACK"))) {
-            try {
-                if (gameNumbers.isEmpty()) {
-                    throw new ResponseException(400, "Must view games before joining. Try typing 'list'.");
-                }
-                GameData game = gameNumbers.get(Integer.parseInt(params[0]));
-                if (game == null) {
-                    throw new ResponseException(400, "Game does not exist.");
-                }
-                int id = game.gameID();
-                server.joinGame(null, id, authToken);
-                state = State.INGAMEOBSERVER;
-                board = setUpBoard("WHITE", game.game().getBoard());
-                return String.format("Successfully joined %s as an observer.", game.gameName());
-            } catch (Exception e) {
-                throw new ResponseException(400, "Failed to join game: " + e.getMessage());
-            }
-        }
-        throw new ResponseException(400, "Expected: <ID>");
-    }
-
     public String help() {
         if (state == State.LOGGEDOUT) {
             return """
@@ -224,6 +205,7 @@ public class ChessClient {
 
     public String clearDB() throws ResponseException {
         server.clear();
+        state = State.LOGGEDOUT;
         return "Database has been cleared.";
     }
 
