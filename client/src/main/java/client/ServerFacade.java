@@ -38,6 +38,10 @@ public class ServerFacade {
         JoinGameRequest req = new JoinGameRequest(playerColor, gameID);
         return makeRequest("PUT", "/game", req, JoinGameResult.class, authToken);
     }
+    public ClearResult clear() throws ResponseException {
+        ClearRequest req = new ClearRequest();
+        return makeRequest("DELETE", "/db", req, ClearResult.class, null);
+    }
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken)
             throws ResponseException {
         try {

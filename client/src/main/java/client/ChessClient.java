@@ -1,5 +1,9 @@
 package client;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import exception.ResponseException;
 import model.GameData;
 import service.results.*;
@@ -14,6 +18,7 @@ public class ChessClient {
     private final ServerFacade server;
     private Map<Integer, GameData> gameNumbers;
     private String authToken;
+    public String board;
 
 
     public ChessClient(int port){
@@ -36,6 +41,7 @@ public class ChessClient {
                 case "play" -> playGame(params);
                 case "observe" -> observeGame(params);
                 case "quit" -> "quit";
+                case "clear" -> clear();
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -52,9 +58,19 @@ public class ChessClient {
                 authToken = res.authToken();
                 name = params[0];
                 state = State.LOGGEDIN;
+                List<GameData> games = server.listGames(authToken).games().stream().toList();
+                for (GameData game : games) {
+                    if (game.whiteUsername() != null && game.whiteUsername().equals(name)) {
+                        state = State.INGAMEWHITE;
+                        board = setUpBoard("WHITE", game.game().getBoard());
+                    } else if (game.blackUsername() != null && game.blackUsername().equals(name)) {
+                        state = State.INGAMEBLACK;
+                        board = setUpBoard("BLACK", game.game().getBoard());
+                    }
+                }
                 return String.format("You signed in as %s.", name);
             } catch (Exception e) {
-                throw new ResponseException(400, "Username or password is incorrect.");
+                throw new ResponseException(400, "Failed to log in: " + e.getMessage());
             }
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
@@ -148,6 +164,13 @@ public class ChessClient {
                 }
                 int id = game.gameID();
                 server.joinGame(params[1].toUpperCase(), id, authToken);
+                if (params[1].equalsIgnoreCase("WHITE")) {
+                    state = State.INGAMEWHITE;
+                    board = setUpBoard("WHITE", game.game().getBoard());
+                } else {
+                    state = State.INGAMEBLACK;
+                    board = setUpBoard("BLACK", game.game().getBoard());
+                }
                 return String.format("Successfully joined %s as %s", game.gameName(), params[1].toUpperCase());
             } catch (Exception e) {
                 throw new ResponseException(400, "Failed to join game: " + e.getMessage());
@@ -171,12 +194,19 @@ public class ChessClient {
                 }
                 int id = game.gameID();
                 server.joinGame(null, id, authToken);
+                state = State.INGAMEOBSERVER;
+                board = setUpBoard("WHITE", game.game().getBoard());
                 return String.format("Successfully joined %s as an observer.", game.gameName());
             } catch (Exception e) {
                 throw new ResponseException(400, "Failed to join game: " + e.getMessage());
             }
         }
         throw new ResponseException(400, "Expected: <ID>");
+    }
+
+    public String clear() throws ResponseException {
+        server.clear();
+        return "cleared";
     }
 
     public String help() {
@@ -197,5 +227,71 @@ public class ChessClient {
                 quit - close the program
                 help - list commands
                 """;
+    }
+
+    public String setUpBoard(String color, ChessBoard board) {
+        boolean white = true;
+        String ret = SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE;
+        if (color.equals("WHITE")) {
+            ret += "    a  b  c  d  e  f  g  h    \n";
+            for (int r = 8; r > 0; r--) {
+                ret += addRow(white, board, r);
+                white = !white;
+            }
+            ret += SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + "    a  b  c  d  e  f  g  h    ";
+        } else {
+            ret += "    h  g  f  e  d  c  b  a    \n";
+            for (int r = 1; r < 9; r++) {
+                ret += addRow(white, board, r);
+                white = !white;
+            }
+            ret += SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + "    h  g  f  e  d  c  b  a    ";
+        }
+
+        return ret;
+    }
+
+    public String addRow(boolean white, ChessBoard board, int r) {
+        String row = SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + String.format(" %d ", r);
+        for (int c = 1; c < 9; c++) {
+            row += addSquare(board.getPiece(new ChessPosition(r, c)), white);
+            white = !white;
+        }
+        row += SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + String.format(" %d \n", r);
+        return row;
+    }
+
+    public String addSquare(ChessPiece piece, boolean whiteSquare) {
+        String square = "";
+        if (whiteSquare) {
+            square += SET_BG_COLOR_WHITE;
+        } else {
+            square += SET_BG_COLOR_BLACK;
+        }
+        if (piece == null) {
+            square += "   ";
+            return square;
+        }
+        square += " ";
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            square += SET_TEXT_COLOR_RED;
+        } else {
+            square += SET_TEXT_COLOR_BLUE;
+        }
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            square += "P";
+        } else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+            square += "R";
+        } else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+            square += "N";
+        } else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
+            square += "B";
+        } else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
+            square += "Q";
+        } else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            square += "K";
+        }
+        square += " ";
+        return square;
     }
 }
