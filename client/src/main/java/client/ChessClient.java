@@ -39,6 +39,7 @@ public class ChessClient {
                 case "play" -> playGame(params);
                 case "observe" -> observeGame(params);
                 case "quit" -> "quit";
+                case "clear" -> clearDB();
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -47,7 +48,7 @@ public class ChessClient {
     }
     public String login(String... params) throws ResponseException {
         if (state == State.LOGGEDIN) {
-            return "Already logged in.";
+            throw new ResponseException(400, "Already logged in.");
         }
         if (params.length == 2) {
             try {
@@ -74,7 +75,7 @@ public class ChessClient {
     }
     public String register(String... params) throws ResponseException {
         if (state == State.LOGGEDIN) {
-            return "Already logged in.";
+            throw new ResponseException(400, "Already logged in.");
         }
         if (params.length == 3) {
             try {
@@ -91,7 +92,7 @@ public class ChessClient {
     }
     public String logout() throws ResponseException {
         if (state == State.LOGGEDOUT) {
-            return "Already logged out.";
+            throw new ResponseException(400, "Already logged out.");
         }
         try {
             server.logout(authToken);
@@ -103,7 +104,7 @@ public class ChessClient {
     }
     public String createGame(String... params) throws ResponseException {
         if (state == State.LOGGEDOUT) {
-            return "Must be logged in to create a game.";
+            throw new ResponseException(400, "Must be logged in to create a game.");
         }
         if (params.length == 1) {
             try {
@@ -117,7 +118,7 @@ public class ChessClient {
     }
     public String listGames() throws ResponseException {
         if (state == State.LOGGEDOUT) {
-            return "Must be logged in to view ongoing games.";
+            throw new ResponseException(400, "Must be logged in to view ongoing games.");
         }
         try {
             gameNumbers.clear();
@@ -147,7 +148,7 @@ public class ChessClient {
     }
     public String playGame(String... params) throws ResponseException {
         if (state == State.LOGGEDOUT) {
-            return "Must be logged in to play a game.";
+            throw new ResponseException(400, "Must be logged in to play a game.");
         }
         if (params.length == 2 && (params[1].equalsIgnoreCase("WHITE")
                 || params[1].equalsIgnoreCase("BLACK"))) {
@@ -168,7 +169,7 @@ public class ChessClient {
                     state = State.INGAMEBLACK;
                     board = setUpBoard("BLACK", game.game().getBoard());
                 }
-                return String.format("Successfully joined %s as %s", game.gameName(), params[1].toUpperCase());
+                return String.format("Successfully joined %s as %s.", game.gameName(), params[1].toUpperCase());
             } catch (Exception e) {
                 throw new ResponseException(400, "Failed to join game: " + e.getMessage());
             }
@@ -177,17 +178,17 @@ public class ChessClient {
     }
     public String observeGame(String... params) throws ResponseException {
         if (state == State.LOGGEDOUT) {
-            return "Must be logged in to observe a game.";
+            throw new ResponseException(400, "Must be logged in to observe a game.");
         }
         if (params.length == 2 && (params[1].equalsIgnoreCase("WHITE")
                 || params[1].equalsIgnoreCase("BLACK"))) {
             try {
                 if (gameNumbers.isEmpty()) {
-                    return "Must view games before joining. Try typing 'list'.";
+                    throw new ResponseException(400, "Must view games before joining. Try typing 'list'.");
                 }
                 GameData game = gameNumbers.get(Integer.parseInt(params[0]));
                 if (game == null) {
-                    return "Game does not exist.";
+                    throw new ResponseException(400, "Game does not exist.");
                 }
                 int id = game.gameID();
                 server.joinGame(null, id, authToken);
@@ -219,6 +220,11 @@ public class ChessClient {
                 quit - close the program
                 help - list commands
                 """;
+    }
+
+    public String clearDB() throws ResponseException {
+        server.clear();
+        return "Database has been cleared.";
     }
 
     public String setUpBoard(String color, ChessBoard board) {
