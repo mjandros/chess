@@ -65,5 +65,28 @@ public class ServerFacadeTests {
     void createGameNeg() {
         assertThrows(ResponseException.class, () -> facade.createGame("game1", "fakeToken"));
     }
+    @Test
+    void listGamesPos() throws Exception {
+        var authData = facade.register("player1", "password", "p1@email.com");
+        assertDoesNotThrow(() -> facade.listGames(authData.authToken()));
+    }
+    @Test
+    void listGamesNeg() {
+        assertThrows(ResponseException.class, () -> facade.listGames("fakeToken"));
+    }
+    @Test
+    void joinGamePos() throws Exception {
+        var authData = facade.register("player1", "password", "p1@email.com");
+        facade.createGame("game1", authData.authToken());
+        facade.listGames(authData.authToken());
+        assertDoesNotThrow(() -> facade.joinGame("WHITE", 1, authData.authToken()));
+    }
+    @Test
+    void joinGameNeg() throws ResponseException {
+        var authData = facade.register("player1", "password", "p1@email.com");
+        facade.createGame("game1", authData.authToken());
+        facade.listGames(authData.authToken());
+        assertThrows(ResponseException.class, () -> facade.joinGame("WHITE", 2, authData.authToken()));
+    }
 
 }

@@ -153,11 +153,11 @@ public class ChessClient {
                 || params[1].equalsIgnoreCase("BLACK"))) {
             try {
                 if (gameNumbers.isEmpty()) {
-                    return "Must view games before joining. Try typing 'list'.";
+                    throw new ResponseException(400, "Must view games before joining. Try typing 'list'.");
                 }
                 GameData game = gameNumbers.get(Integer.parseInt(params[0]));
                 if (game == null) {
-                    return "Game does not exist.";
+                    throw new ResponseException(400, "Game does not exist.");
                 }
                 int id = game.gameID();
                 server.joinGame(params[1].toUpperCase(), id, authToken);
