@@ -6,10 +6,6 @@ import static ui.EscapeSequences.*;
 
 public class Repl {
     private final ChessClient client;
-//    private final String whiteBoard = SET_BG_COLOR_DARK_GREY +
-//            "    a  b  c  d  e  f  g  h    \n 8 " + SET_BG_COLOR_WHITE +
-//            " R " + SET_BG_COLOR_BLACK + " N ";
-//    private final String blackBoard = "";
 
     public Repl(int port) {
         client = new ChessClient(port);

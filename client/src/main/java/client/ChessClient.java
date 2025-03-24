@@ -14,7 +14,6 @@ import java.util.*;
 public class ChessClient {
     private String name = null;
     public State state = State.LOGGEDOUT;
-    private final int port;
     private final ServerFacade server;
     private Map<Integer, GameData> gameNumbers;
     private String authToken;
@@ -22,7 +21,6 @@ public class ChessClient {
 
 
     public ChessClient(int port){
-        this.port = port;
         server = new ServerFacade(port);
         gameNumbers = new HashMap<>();
     }
@@ -41,7 +39,6 @@ public class ChessClient {
                 case "play" -> playGame(params);
                 case "observe" -> observeGame(params);
                 case "quit" -> "quit";
-                case "clear" -> clear();
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -202,11 +199,6 @@ public class ChessClient {
             }
         }
         throw new ResponseException(400, "Expected: <ID>");
-    }
-
-    public String clear() throws ResponseException {
-        server.clear();
-        return "cleared";
     }
 
     public String help() {
