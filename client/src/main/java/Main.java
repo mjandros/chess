@@ -1,6 +1,5 @@
 import chess.*;
 import client.Repl;
-import server.Server;
 
 public class Main {
     public static void main(String[] args) {
@@ -10,8 +9,7 @@ public class Main {
         if (args.length == 1) {
             port = Integer.parseInt(args[0]);
         }
-        Server server = new Server();
-        server.run(port);
+
         new Repl(port).run();
     }
 }
