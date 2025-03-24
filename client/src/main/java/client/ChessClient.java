@@ -217,14 +217,14 @@ public class ChessClient {
         if (color.equals("WHITE")) {
             ret += "    a  b  c  d  e  f  g  h    \n";
             for (int r = 8; r > 0; r--) {
-                ret += addRow(white, board, r);
+                ret += addRow(white, board, r, color);
                 white = !white;
             }
             ret += SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + "    a  b  c  d  e  f  g  h    ";
         } else {
             ret += "    h  g  f  e  d  c  b  a    \n";
             for (int r = 1; r < 9; r++) {
-                ret += addRow(white, board, r);
+                ret += addRow(white, board, r, color);
                 white = !white;
             }
             ret += SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + "    h  g  f  e  d  c  b  a    ";
@@ -233,11 +233,19 @@ public class ChessClient {
         return ret;
     }
 
-    public String addRow(boolean white, ChessBoard board, int r) {
+    public String addRow(boolean white, ChessBoard board, int r, String color) {
         String row = SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + String.format(" %d ", r);
-        for (int c = 1; c < 9; c++) {
-            row += addSquare(board.getPiece(new ChessPosition(r, c)), white);
-            white = !white;
+        if (color.equals("WHITE")){
+            for (int c = 1; c < 9; c++) {
+                row += addSquare(board.getPiece(new ChessPosition(r, c)), white);
+                white = !white;
+            }
+        }
+        else {
+            for (int c = 8; c > 0; c--) {
+                row += addSquare(board.getPiece(new ChessPosition(r, c)), white);
+                white = !white;
+            }
         }
         row += SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + String.format(" %d \n", r);
         return row;
