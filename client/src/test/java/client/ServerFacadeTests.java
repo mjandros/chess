@@ -47,5 +47,14 @@ public class ServerFacadeTests {
     void loginNeg() {
         assertThrows(ResponseException.class, () -> facade.login("unregistered_username", "fsdnjskg"));
     }
+    @Test
+    void logoutPos() throws Exception {
+        var authData = facade.register("player1", "password", "p1@email.com");
+        assertDoesNotThrow(() -> facade.logout(authData.authToken()));
+    }
+    @Test
+    void logoutNeg() {
+        assertThrows(ResponseException.class, () -> facade.logout("fakeToken"));
+    }
 
 }
