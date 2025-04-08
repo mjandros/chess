@@ -190,8 +190,11 @@ public class ChessClient {
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
     }
-    public String redrawBoard() {
-        return "";
+    public String redrawBoard() throws ResponseException {
+        if (state == State.LOGGEDOUT || state == State.LOGGEDIN) {
+            throw new ResponseException(400, "Must be logged in to join a game.");
+        }
+        return board;
     }
     public String leaveGame() {
         return "";
