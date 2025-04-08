@@ -40,6 +40,11 @@ public class ChessClient {
                 case "list" -> listGames();
                 case "play" -> joinGame("play", params);
                 case "observe" -> joinGame("observe", params);
+                case "board" -> redrawBoard();
+                case "leave" -> leaveGame();
+                case "move" -> makeMove();
+                case "resign" -> resign();
+                case "moves" -> highlightMoves();
                 case "quit" -> "quit";
                 case "clear" -> clearDB();
                 default -> help();
@@ -184,6 +189,21 @@ public class ChessClient {
             }
         }
         throw new ResponseException(400, "Expected: <ID> [WHITE|BLACK]");
+    }
+    public String redrawBoard() {
+        return "";
+    }
+    public String leaveGame() {
+        return "";
+    }
+    public String makeMove() {
+        return "";
+    }
+    public String resign() {
+        return "";
+    }
+    public String highlightMoves() {
+        return "";
     }
     public String help() {
         if (state == State.LOGGEDOUT) {

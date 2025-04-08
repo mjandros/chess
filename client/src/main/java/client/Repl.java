@@ -32,11 +32,13 @@ public class Repl {
     }
 
     public void printPrompt() {
-        String status = client.board + "\n";
+        String status = "";
         if (client.state == State.LOGGEDIN) {
             status = "[LOGGED_IN]";
         } else if (client.state == State.LOGGEDOUT) {
             status = "[LOGGED_OUT]";
+        } else {
+            status = "[IN_GAME]";
         }
         System.out.print("\n" + RESET_TEXT_COLOR + status + " >>> " + SET_TEXT_COLOR_GREEN);
     }
