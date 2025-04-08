@@ -18,6 +18,7 @@ public class ChessClient {
     public State state = State.LOGGEDOUT;
     private final ServerFacade server;
     private Map<Integer, GameData> gameNumbers;
+    private int currentGame;
     private String authToken;
     public String board;
 
@@ -164,7 +165,8 @@ public class ChessClient {
                 if (gameNumbers.isEmpty()) {
                     throw new ResponseException(400, "Must view games before joining. Try typing 'list'.");
                 }
-                GameData game = gameNumbers.get(Integer.parseInt(params[0]));
+                currentGame = Integer.parseInt(params[0]);
+                GameData game = gameNumbers.get(currentGame);
                 if (game == null) {
                     throw new ResponseException(400, "Game does not exist.");
                 }
@@ -192,20 +194,51 @@ public class ChessClient {
     }
     public String redrawBoard() throws ResponseException {
         if (state == State.LOGGEDOUT || state == State.LOGGEDIN) {
-            throw new ResponseException(400, "Must be logged in to join a game.");
+            throw new ResponseException(400, "Must be in a game to view the board.");
         }
-        return board;
+        try {
+            return board;
+        } catch (Exception e) {
+            throw new ResponseException(400, "Failed to draw board: " + e.getMessage());
+        }
     }
-    public String leaveGame() {
+    public String leaveGame() throws ResponseException {
+        if (state == State.LOGGEDOUT || state == State.LOGGEDIN) {
+            throw new ResponseException(400, "Must be in a game to leave the game.");
+        }
+        try {
+            GameData game = gameNumbers.get(currentGame);
+            if (game == null) {
+                throw new ResponseException(400, "Game does not exist.");
+            }
+            int id = game.gameID();
+            if (state == State.INGAMEWHITE) {
+                //update whiteUsername in db
+            } else if (state == State.INGAMEBLACK) {
+                //update blackUsername in db
+            }
+            state = State.LOGGEDIN;
+            return String.format("Left %s.", game.gameName());
+        } catch (Exception e) {
+            throw new ResponseException(400, "Failed to leave game: " + e.getMessage());
+        }
+    }
+    public String makeMove() throws ResponseException {
+        if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
+            throw new ResponseException(400, "Must be in a game as a player to make a move.");
+        }
         return "";
     }
-    public String makeMove() {
+    public String resign() throws ResponseException {
+        if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
+            throw new ResponseException(400, "Must be in a game as a player to resign.");
+        }
         return "";
     }
-    public String resign() {
-        return "";
-    }
-    public String highlightMoves() {
+    public String highlightMoves() throws ResponseException {
+        if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
+            throw new ResponseException(400, "Must be in a game as a player to highlight moves.");
+        }
         return "";
     }
     public String help() {
