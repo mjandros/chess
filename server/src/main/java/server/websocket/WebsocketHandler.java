@@ -38,8 +38,8 @@ public class WebsocketHandler {
         GameData game = gameDAO.getGame(command.getGameID());
         switch (command.getCommandType()) {
             case CONNECT -> connect(command.getUsername(), session, game);
-            case MAKE_MOVE -> makeMove(((MakeMoveCommand) command).getMove());
-            case LEAVE -> leave();
+            case MAKE_MOVE -> makeMove(command.getUsername(), ((MakeMoveCommand) command).getMove());
+            case LEAVE -> leave(command.getUsername());
             case RESIGN -> resign();
         }
     }
@@ -60,8 +60,11 @@ public class WebsocketHandler {
         var notification = new NotificationMessage(message);
         connections.broadcast(username, notification);
     }
-    private void leave() {
-
+    private void leave(String username) throws IOException {
+        connections.remove(username);
+        var message = String.format("%s left the game.", username);
+        var notification = new NotificationMessage(message);
+        connections.broadcast(username, notification);
     }
     private void resign() {
 
