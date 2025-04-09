@@ -18,8 +18,10 @@ public class UserGameCommand {
 
     private final Integer gameID;
     private final ChessMove move;
+    private final String username;
 
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, ChessMove move) {
+    public UserGameCommand(CommandType commandType, String username, String authToken, Integer gameID, ChessMove move) {
+        this.username = username;
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
@@ -35,6 +37,10 @@ public class UserGameCommand {
 
     public CommandType getCommandType() {
         return commandType;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public String getAuthToken() {

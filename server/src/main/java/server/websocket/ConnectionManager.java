@@ -10,9 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionManager {
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
 
-    public void add(String visitorName, Session session) {
-        var connection = new Connection(visitorName, session);
-        connections.put(visitorName, connection);
+    public void add(String username, Session session) {
+        var connection = new Connection(username, session);
+        connections.put(username, connection);
     }
 
     public void remove(String visitorName) {
@@ -23,7 +23,7 @@ public class ConnectionManager {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (!c.visitorName.equals(excludeVisitorName)) {
+                if (!c.username.equals(excludeVisitorName)) {
                     c.send(message.toString());
                 }
             } else {
@@ -32,7 +32,7 @@ public class ConnectionManager {
         }
 
         for (var c : removeList) {
-            connections.remove(c.visitorName);
+            connections.remove(c.username);
         }
     }
 }

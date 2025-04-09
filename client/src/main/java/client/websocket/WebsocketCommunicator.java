@@ -13,9 +13,11 @@ public class WebsocketCommunicator extends Endpoint {
     public Session session;
     public String authToken;
     public int gameID;
+    public String username;
 
-    public WebsocketCommunicator(String url, String authToken, int gameID) throws Exception {
+    public WebsocketCommunicator(String url, String username, String authToken, int gameID) throws Exception {
         try {
+            this.username = username;
             this.authToken = authToken;
             this.gameID = gameID;
             url = url.replace("http", "ws");
@@ -34,7 +36,7 @@ public class WebsocketCommunicator extends Endpoint {
     }
     public void connect() throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, username, authToken, gameID, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -42,7 +44,7 @@ public class WebsocketCommunicator extends Endpoint {
     }
     public void makeMove(ChessMove move) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
+            var command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, username, authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -50,7 +52,7 @@ public class WebsocketCommunicator extends Endpoint {
     }
     public void leave() throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, username, authToken, gameID, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -58,7 +60,7 @@ public class WebsocketCommunicator extends Endpoint {
     }
     public void resign() throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, username, authToken, gameID, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
