@@ -74,6 +74,16 @@ public class MySQLGameDAO implements GameDAO {
                 throw new DataAccessException("already taken");
             }
             statement = "UPDATE games SET blackUsername = ? WHERE id = ?";
+        } else if (Objects.equals(playerColor, "REMOVE_WHITE")) {
+            if (gameCheck.whiteUsername() == null) {
+                throw new DataAccessException("already empty");
+            }
+            statement = "UPDATE games SET whiteUsername = NULL WHERE id = ?";
+        } else if (Objects.equals(playerColor, "REMOVE_BLACK")) {
+            if (gameCheck.blackUsername() == null) {
+                throw new DataAccessException("already empty");
+            }
+            statement = "UPDATE games SET blackUsername = NULL WHERE id = ?";
         } else {
             throw new DataAccessException("Error: Invalid player color");
         }

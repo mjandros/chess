@@ -220,11 +220,11 @@ public class ChessClient {
                 throw new ResponseException(400, "Game does not exist.");
             }
             int id = game.gameID();
-            if (state == State.INGAMEWHITE) {
-                //update whiteUsername in db
-            } else if (state == State.INGAMEBLACK) {
-                //update blackUsername in db
+            String playerColor = "REMOVE_WHITE";
+            if (state == State.INGAMEBLACK) {
+                playerColor = "REMOVE_BLACK";
             }
+            server.joinGame(playerColor, id, authToken);
             ws.leave();
             ws = null;
             state = State.LOGGEDIN;
