@@ -1,9 +1,6 @@
 package client;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import exception.ResponseException;
 import model.GameData;
 import model.results.LoginResult;
@@ -45,7 +42,7 @@ public class ChessClient {
                 case "leave" -> leaveGame();
                 case "move" -> makeMove();
                 case "resign" -> resign();
-                case "moves" -> highlightMoves();
+                case "moves" -> highlightMoves(params);
                 case "quit" -> "quit";
                 case "clear" -> clearDB();
                 default -> help();
@@ -68,10 +65,10 @@ public class ChessClient {
                 for (GameData game : games) {
                     if (game.whiteUsername() != null && game.whiteUsername().equals(name)) {
                         state = State.INGAMEWHITE;
-                        board = setUpBoard("WHITE", game.game().getBoard());
+                        board = setUpBoard("WHITE", game.game().getBoard(), null);
                     } else if (game.blackUsername() != null && game.blackUsername().equals(name)) {
                         state = State.INGAMEBLACK;
-                        board = setUpBoard("BLACK", game.game().getBoard());
+                        board = setUpBoard("BLACK", game.game().getBoard(), null);
                     }
                 }
                 return String.format("You signed in as %s.", name);
@@ -180,10 +177,10 @@ public class ChessClient {
                     } else {
                         state = State.INGAMEWHITE;
                     }
-                    board = setUpBoard(position, game.game().getBoard());
+                    board = setUpBoard(position, game.game().getBoard(), null);
                 } else {
                     state = State.INGAMEOBSERVER;
-                    board = setUpBoard("WHITE", game.game().getBoard());
+                    board = setUpBoard("WHITE", game.game().getBoard(), null);
                 }
                 return String.format("Successfully joined %s as %s.", game.gameName(), position);
             } catch (Exception e) {
@@ -235,11 +232,35 @@ public class ChessClient {
         }
         return "";
     }
-    public String highlightMoves() throws ResponseException {
+    public String highlightMoves(String... params) throws ResponseException {
         if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
-            throw new ResponseException(400, "Must be in a game as a player to highlight moves.");
+            throw new ResponseException(400, "Must be in a game as a player to show moves.");
         }
-        return "";
+        if (params.length == 2 && params[0].length() == 1 && params[1].length() == 1
+        && !Character.isDigit(params[0].charAt(0)) && Character.isDigit(params[1].charAt(0))
+        && (params[0].charAt(0) - 'a' + 1) > 0 && (params[0].charAt(0) - 'a' + 1) < 9) {
+            try {
+                GameData game = gameNumbers.get(currentGame);
+                int col = params[0].charAt(0) - 'a' + 1;
+                ChessPosition pos = new ChessPosition(Integer.parseInt(params[1]), col);
+                ChessBoard chessBoard = game.game().getBoard();
+                ChessPiece piece = chessBoard.getPiece(pos);
+                Collection<ChessMove> moves = piece.pieceMoves(chessBoard, pos);
+                ArrayList<ChessPosition> highlights = new ArrayList<>();
+                highlights.add(pos);
+                for (ChessMove cm : moves) {
+                    highlights.add(cm.getEndPosition());
+                }
+                String side = "WHITE";
+                if (state == State.INGAMEBLACK) {
+                    side = "BLACK";
+                }
+                return setUpBoard(side, chessBoard, highlights);
+            } catch (Exception e) {
+                throw new ResponseException(400, "Failed to show moves: " + e.getMessage());
+            }
+        }
+        throw new ResponseException(400, "Expected: [A-H] [1-8]");
     }
     public String help() {
         if (state == State.LOGGEDOUT) {
@@ -253,7 +274,7 @@ public class ChessClient {
         return """
                 create <NAME> - create a game with the given name
                 list - display all ongoing games
-                join <ID> [WHITE|BLACK] - join the given game as the given color
+                play <ID> [WHITE|BLACK] - join the given game as the given color
                 observe <ID> - spectate the given game
                 logout - log out of your account
                 quit - close the program
@@ -267,20 +288,23 @@ public class ChessClient {
         return "Database has been cleared.";
     }
 
-    public String setUpBoard(String color, ChessBoard board) {
+    public String setUpBoard(String color, ChessBoard board, ArrayList<ChessPosition> highlights) {
+        if (highlights == null) {
+            highlights = new ArrayList<>();
+        }
         boolean white = true;
         String ret = SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE;
         if (color.equals("WHITE")) {
             ret += "    a  b  c  d  e  f  g  h    \n";
             for (int r = 8; r > 0; r--) {
-                ret += addRow(white, board, r, color);
+                ret += addRow(white, board, r, color, highlights);
                 white = !white;
             }
             ret += SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + "    a  b  c  d  e  f  g  h    ";
         } else {
             ret += "    h  g  f  e  d  c  b  a    \n";
             for (int r = 1; r < 9; r++) {
-                ret += addRow(white, board, r, color);
+                ret += addRow(white, board, r, color, highlights);
                 white = !white;
             }
             ret += SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + "    h  g  f  e  d  c  b  a    ";
@@ -289,17 +313,40 @@ public class ChessClient {
         return ret;
     }
 
-    public String addRow(boolean white, ChessBoard board, int r, String color) {
+    public String getSquareColor(ChessPosition pos, boolean white, ArrayList<ChessPosition> highlights) {
+        String squareColor;
+        if (white) {
+            squareColor = "WHITE";
+        } else {
+            squareColor = "BLACK";
+        }
+        if (highlights.contains(pos)) {
+            if (highlights.indexOf(pos) == 0) {
+                squareColor = "YELLOW";
+            } else {
+                if (squareColor.equals("WHITE")) {
+                    squareColor = "LIGHTGREEN";
+                } else {
+                    squareColor = "DARKGREEN";
+                }
+            }
+        }
+        return squareColor;
+    }
+
+    public String addRow(boolean white, ChessBoard board, int r, String color, ArrayList<ChessPosition> highlights) {
         String row = SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_WHITE + String.format(" %d ", r);
         if (color.equals("WHITE")){
             for (int c = 1; c < 9; c++) {
-                row += addSquare(board.getPiece(new ChessPosition(r, c)), white);
+                ChessPosition pos = new ChessPosition(r, c);
+                row += addSquare(board.getPiece(pos), getSquareColor(pos, white, highlights));
                 white = !white;
             }
         }
         else {
             for (int c = 8; c > 0; c--) {
-                row += addSquare(board.getPiece(new ChessPosition(r, c)), white);
+                ChessPosition pos = new ChessPosition(r, c);
+                row += addSquare(board.getPiece(pos), getSquareColor(pos, white, highlights));
                 white = !white;
             }
         }
@@ -307,12 +354,18 @@ public class ChessClient {
         return row;
     }
 
-    public String addSquare(ChessPiece piece, boolean whiteSquare) {
+    public String addSquare(ChessPiece piece, String squareColor) {
         String square = "";
-        if (whiteSquare) {
+        if (squareColor.equals("WHITE")) {
             square += SET_BG_COLOR_WHITE;
-        } else {
+        } else if (squareColor.equals("BLACK")) {
             square += SET_BG_COLOR_BLACK;
+        } else if (squareColor.equals("YELLOW")) {
+            square += SET_BG_COLOR_YELLOW;
+        } else if (squareColor.equals("LIGHTGREEN")) {
+            square += SET_BG_COLOR_GREEN;
+        } else if (squareColor.equals("DARKGREEN")) {
+            square += SET_BG_COLOR_DARK_GREEN;
         }
         if (piece == null) {
             square += "   ";
