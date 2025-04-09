@@ -66,7 +66,8 @@ public class WebsocketHandler {
         var notification = new NotificationMessage(message);
         connections.broadcast(username, notification);
     }
-    private void resign() {
-
+    private void resign(String username) throws IOException {
+        var notification = new NotificationMessage(String.format("%s resigned.", username));
+        connections.broadcast(username, notification);
     }
 }
