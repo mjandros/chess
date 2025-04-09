@@ -200,6 +200,11 @@ public class ChessClient {
             throw new ResponseException(400, "Must be in a game to view the board.");
         }
         try {
+            String position = "WHITE";
+            if (state == State.INGAMEBLACK) {
+                position = "BLACK";
+            }
+            board = setUpBoard(position, gameNumbers.get(currentGame).game().getBoard(), null);
             return board;
         } catch (Exception e) {
             throw new ResponseException(400, "Failed to draw board: " + e.getMessage());
