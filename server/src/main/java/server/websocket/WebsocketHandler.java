@@ -53,8 +53,12 @@ public class WebsocketHandler {
         connections.broadcast(username, notification);
     }
 
-    private void makeMove(ChessMove move) throws IOException {
-
+    private void makeMove(String username, ChessMove move) throws IOException {
+        String startPos = String.format("%s%s", ('a' + (move.getStartPosition().getColumn() - 1)), "" + move.getStartPosition().getRow());
+        String endPos = String.format("%s%s", ('a' + (move.getEndPosition().getColumn() - 1)), "" + move.getEndPosition().getRow());
+        String message = String.format("%s has moved their piece from %s to %s.", username, startPos, endPos);
+        var notification = new NotificationMessage(message);
+        connections.broadcast(username, notification);
     }
     private void leave() {
 
