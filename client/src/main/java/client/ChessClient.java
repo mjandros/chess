@@ -246,6 +246,16 @@ public class ChessClient {
                     throw new ResponseException(400, "Invalid move.");
                 }
                 ChessGame game = gameNumbers.get(currentGame).game();
+                ChessGame.TeamColor playerColor = ChessGame.TeamColor.WHITE;
+                if (state == State.INGAMEBLACK) {
+                    playerColor = ChessGame.TeamColor.BLACK;
+                }
+                if (game.getBoard().getPiece(startPos) == null) {
+                    throw new ResponseException(400, "Failed to make move: No piece at given position.");
+                }
+                if (game.getBoard().getPiece(startPos).getTeamColor() != playerColor) {
+                    throw new ResponseException(400, "Failed to make move: Piece at given position belongs to opponent.");
+                }
                 ChessMove move = new ChessMove(startPos, endPos, null);
                 game.makeMove(move);
                 ws.makeMove(move);
