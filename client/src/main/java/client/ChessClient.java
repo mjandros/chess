@@ -1,6 +1,7 @@
 package client;
 
 import chess.*;
+import client.websocket.WebsocketCommunicator;
 import exception.ResponseException;
 import model.GameData;
 import model.results.LoginResult;
@@ -18,11 +19,14 @@ public class ChessClient {
     private int currentGame;
     private String authToken;
     public String board;
+    private WebsocketCommunicator ws;
+    private final String url;
 
 
-    public ChessClient(int port){
+    public ChessClient(int port, String url){
         server = new ServerFacade(port);
         gameNumbers = new HashMap<>();
+        this.url = url;
     }
 
     public String eval(String input) {
@@ -168,6 +172,8 @@ public class ChessClient {
                     throw new ResponseException(400, "Game does not exist.");
                 }
                 int id = game.gameID();
+                ws = new WebsocketCommunicator(url, name, authToken, id);
+                ws.connect();
                 String position = "an observer";
                 if (status.equals("play")) {
                     position = params[1].toUpperCase();
@@ -214,6 +220,8 @@ public class ChessClient {
             } else if (state == State.INGAMEBLACK) {
                 //update blackUsername in db
             }
+            ws.leave();
+            ws = null;
             state = State.LOGGEDIN;
             return String.format("Left %s.", game.gameName());
         } catch (Exception e) {
