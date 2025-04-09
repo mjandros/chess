@@ -19,20 +19,29 @@ public class ConnectionManager {
         connections.remove(visitorName);
     }
 
-    public void broadcast(String excludeVisitorName, ServerMessage message) throws IOException {
-        var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                if (!c.username.equals(excludeVisitorName)) {
-                    c.send(message.toString());
+    public void broadcast(String username, ServerMessage message) throws IOException {
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            var removeList = new ArrayList<Connection>();
+            for (var c : connections.values()) {
+                if (c.session.isOpen()) {
+                    if (!c.username.equals(username)) {
+                        c.send(message.toString());
+                    }
+                } else {
+                    removeList.add(c);
                 }
-            } else {
-                removeList.add(c);
             }
-        }
 
-        for (var c : removeList) {
-            connections.remove(c.username);
+            for (var c : removeList) {
+                connections.remove(c.username);
+            }
+        } else {
+            for (var c : connections.values()) {
+                if (c.username.equals(username)) {
+                    c.send(message.toString());
+                    break;
+                }
+            }
         }
     }
 }

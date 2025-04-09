@@ -40,7 +40,7 @@ public class WebsocketHandler {
             case CONNECT -> connect(command.getUsername(), session, game);
             case MAKE_MOVE -> makeMove(command.getUsername(), ((MakeMoveCommand) command).getMove());
             case LEAVE -> leave(command.getUsername());
-            case RESIGN -> resign();
+            case RESIGN -> resign(command.getUsername());
         }
     }
 
