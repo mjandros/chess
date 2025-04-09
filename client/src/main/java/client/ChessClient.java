@@ -236,13 +236,13 @@ public class ChessClient {
         if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
             throw new ResponseException(400, "Must be in a game as a player to show moves.");
         }
-        if (params.length == 2 && params[0].length() == 1 && params[1].length() == 1
-        && !Character.isDigit(params[0].charAt(0)) && Character.isDigit(params[1].charAt(0))
+        if (params.length == 1 && params[0].length() == 2
+        && !Character.isDigit(params[0].charAt(0)) && Character.isDigit(params[0].charAt(1))
         && (params[0].charAt(0) - 'a' + 1) > 0 && (params[0].charAt(0) - 'a' + 1) < 9) {
             try {
                 GameData game = gameNumbers.get(currentGame);
                 int col = params[0].charAt(0) - 'a' + 1;
-                ChessPosition pos = new ChessPosition(Integer.parseInt(params[1]), col);
+                ChessPosition pos = new ChessPosition(Integer.parseInt("" + params[0].charAt(1)), col);
                 ChessBoard chessBoard = game.game().getBoard();
                 ChessPiece piece = chessBoard.getPiece(pos);
                 Collection<ChessMove> moves = piece.pieceMoves(chessBoard, pos);
@@ -260,7 +260,7 @@ public class ChessClient {
                 throw new ResponseException(400, "Failed to show moves: " + e.getMessage());
             }
         }
-        throw new ResponseException(400, "Expected: [A-H] [1-8]");
+        throw new ResponseException(400, "Expected: [A-H][1-8]");
     }
     public String help() {
         if (state == State.LOGGEDOUT) {
@@ -270,15 +270,29 @@ public class ChessClient {
                     quit - close the program
                     help - list commands
                     """;
+        } else if (state == State.LOGGEDIN) {
+            return """
+                    create <NAME> - create a game with the given name
+                    list - display all ongoing games
+                    play <ID> [WHITE|BLACK] - join the given game as the given color
+                    observe <ID> - spectate the given game
+                    logout - log out of your account
+                    quit - close the program
+                    help - list commands
+                    """;
+        } else if (state == State.INGAMEOBSERVER) {
+            return """
+                    board - redraw and display board
+                    leave - leave game
+                    """;
         }
         return """
-                create <NAME> - create a game with the given name
-                list - display all ongoing games
-                play <ID> [WHITE|BLACK] - join the given game as the given color
-                observe <ID> - spectate the given game
-                logout - log out of your account
-                quit - close the program
-                help - list commands
+                help - list all available moves
+                board - redraw and display board
+                leave - leave game
+                move [A-H][1-8] [A-H][1-8] - move from the first space listed to the second
+                resign - forfeit the game
+                moves [A-H][1-8] - display board with available moves highlighted
                 """;
     }
 
