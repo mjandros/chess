@@ -44,7 +44,7 @@ public class ChessClient {
                 case "observe" -> joinGame("observe", params);
                 case "board" -> redrawBoard();
                 case "leave" -> leaveGame();
-                case "move" -> makeMove();
+                case "move" -> makeMove(params);
                 case "resign" -> resign();
                 case "moves" -> highlightMoves(params);
                 case "quit" -> "quit";
@@ -228,11 +228,74 @@ public class ChessClient {
             throw new ResponseException(400, "Failed to leave game: " + e.getMessage());
         }
     }
-    public String makeMove() throws ResponseException {
+    public String makeMove(String... params) throws ResponseException {
         if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
             throw new ResponseException(400, "Must be in a game as a player to make a move.");
         }
-        return "";
+        if (params.length == 2 && isValidSpace(params[0]) && isValidSpace(params[1])) {
+            try {
+                ArrayList<ChessPosition> validSpaces = (ArrayList<ChessPosition>) getValidSpaces(params[0]);
+                ChessPosition startPos = parsePos(params[0]);
+                ChessPosition endPos = parsePos(params[1]);
+                if (!validSpaces.contains(endPos)) {
+                    throw new ResponseException(400, "Invalid move.");
+                }
+                ChessGame game = gameNumbers.get(currentGame).game();
+                ChessMove move = new ChessMove(startPos, endPos, null);
+                game.makeMove(move);
+                ws.makeMove(move);
+                return String.format("Moved from %s to %s.", params[0], params[1]);
+            } catch (Exception e) {
+                throw new ResponseException(400, "Failed to make move: " + e.getMessage());
+            }
+        }
+        throw new ResponseException(400, "Expected: [A-H][1-8] [A-H][1-8]");
+    }
+
+    private boolean isValidSpace(String space) {
+        try {
+            if (space.length() != 2) {
+                return false;
+            }
+            try {
+                int row = Integer.parseInt("" + space.charAt(1));
+                if (row < 1 || row > 8) {
+                    return false;
+                }
+            } catch (Exception e) {
+                return false;
+            }
+            return (space.charAt(0) - 'a' + 1) >= 1 && (space.charAt(0) - 'a' + 1) <= 8;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    private Collection<ChessPosition> getValidSpaces(String space) throws ResponseException {
+        try {
+            GameData game = gameNumbers.get(currentGame);
+            int col = space.charAt(0) - 'a' + 1;
+            ChessPosition pos = new ChessPosition(Integer.parseInt("" + space.charAt(1)), col);
+            ChessBoard chessBoard = game.game().getBoard();
+            ChessPiece piece = chessBoard.getPiece(pos);
+            Collection<ChessMove> moves = piece.pieceMoves(chessBoard, pos);
+            Collection<ChessPosition> validSpaces = new ArrayList<>();
+            for (ChessMove cm : moves) {
+                validSpaces.add(cm.getEndPosition());
+            }
+            return validSpaces;
+        } catch (Exception e) {
+            throw new ResponseException(500, "Error: " + e.getMessage());
+        }
+    }
+    private ChessPosition parsePos(String pos) throws ResponseException {
+        if (!isValidSpace(pos)) {
+            throw new ResponseException(400, "Invalid format.");
+        }
+        try {
+            return new ChessPosition(Integer.parseInt("" + pos.charAt(1)), pos.charAt(0) - 'a' + 1);
+        } catch (Exception e) {
+            throw new ResponseException(400, "Invalid format.");
+        }
     }
     public String resign() throws ResponseException {
         if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
@@ -244,26 +307,16 @@ public class ChessClient {
         if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
             throw new ResponseException(400, "Must be in a game as a player to show moves.");
         }
-        if (params.length == 1 && params[0].length() == 2
-        && !Character.isDigit(params[0].charAt(0)) && Character.isDigit(params[0].charAt(1))
-        && (params[0].charAt(0) - 'a' + 1) > 0 && (params[0].charAt(0) - 'a' + 1) < 9) {
+        if (params.length == 1 && isValidSpace(params[0])) {
             try {
-                GameData game = gameNumbers.get(currentGame);
-                int col = params[0].charAt(0) - 'a' + 1;
-                ChessPosition pos = new ChessPosition(Integer.parseInt("" + params[0].charAt(1)), col);
-                ChessBoard chessBoard = game.game().getBoard();
-                ChessPiece piece = chessBoard.getPiece(pos);
-                Collection<ChessMove> moves = piece.pieceMoves(chessBoard, pos);
-                ArrayList<ChessPosition> highlights = new ArrayList<>();
-                highlights.add(pos);
-                for (ChessMove cm : moves) {
-                    highlights.add(cm.getEndPosition());
-                }
+                ChessPosition pos = parsePos(params[0]);
+                ArrayList<ChessPosition> highlights = (ArrayList<ChessPosition>) getValidSpaces(params[0]);
+                highlights.addFirst(pos);
                 String side = "WHITE";
                 if (state == State.INGAMEBLACK) {
                     side = "BLACK";
                 }
-                return setUpBoard(side, chessBoard, highlights);
+                return setUpBoard(side, gameNumbers.get(currentGame).game().getBoard(), highlights);
             } catch (Exception e) {
                 throw new ResponseException(400, "Failed to show moves: " + e.getMessage());
             }

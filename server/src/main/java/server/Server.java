@@ -1,6 +1,7 @@
 package server;
 
 import handler.*;
+import server.websocket.WebsocketHandler;
 import service.*;
 import dataaccess.*;
 import spark.*;
@@ -21,6 +22,7 @@ public class Server {
     private final UserDAO userDAO;
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;
+    private final WebsocketHandler wsh;
 
     public Server() {
         userDAO = new MySQLUserDAO();
@@ -34,6 +36,8 @@ public class Server {
         userHandler = new UserHandler(userService);
         gameHandler = new GameHandler(gameService);
         appHandler = new AppHandler(appService);
+
+        wsh = new WebsocketHandler(gameDAO);
     }
 
     public int run(int desiredPort) {
@@ -58,6 +62,8 @@ public class Server {
     }
 
     private void registerEndpoints() {
+
+        Spark.webSocket("/ws", wsh);
 
         //User Endpoints
         post("/user", userHandler::register);

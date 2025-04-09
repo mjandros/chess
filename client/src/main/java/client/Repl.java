@@ -8,7 +8,8 @@ public class Repl {
     private final ChessClient client;
 
     public Repl(int port) {
-        client = new ChessClient(port);
+        var url = "http://localhost:" + port;
+        client = new ChessClient(port, url);
     }
 
     public void run() {
