@@ -86,11 +86,11 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
         if (!validMoves.contains(move)) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Invalid move.");
         }
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if (getTeamTurn() != piece.getTeamColor()) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("Not your turn.");
         }
         board.addPiece(move.getStartPosition(), null);
         if (move.getPromotionPiece() == null) {

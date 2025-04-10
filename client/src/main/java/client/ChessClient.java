@@ -16,7 +16,7 @@ public class ChessClient {
     public State state = State.LOGGEDOUT;
     private final ServerFacade server;
     private Map<Integer, GameData> gameNumbers;
-    private int currentGame;
+    private int currentGame = 0;
     private String authToken;
     public String board;
     private WebsocketCommunicator ws;
@@ -104,6 +104,7 @@ public class ChessClient {
             throw new ResponseException(400, "Already logged out.");
         }
         try {
+            leaveGame();
             server.logout(authToken);
             state = State.LOGGEDOUT;
             return "Successfully logged out.";
@@ -200,6 +201,9 @@ public class ChessClient {
             throw new ResponseException(400, "Must be in a game to view the board.");
         }
         try {
+            if (currentGame == 0) {
+                throw new ResponseException(400, "Failed to draw board. Try listing games first.");
+            }
             String position = "WHITE";
             if (state == State.INGAMEBLACK) {
                 position = "BLACK";
@@ -239,12 +243,8 @@ public class ChessClient {
         }
         if (params.length == 2 && isValidSpace(params[0]) && isValidSpace(params[1])) {
             try {
-                ArrayList<ChessPosition> validSpaces = (ArrayList<ChessPosition>) getValidSpaces(params[0]);
                 ChessPosition startPos = parsePos(params[0]);
                 ChessPosition endPos = parsePos(params[1]);
-                if (!validSpaces.contains(endPos)) {
-                    throw new ResponseException(400, "Invalid move.");
-                }
                 ChessGame game = gameNumbers.get(currentGame).game();
                 ChessGame.TeamColor playerColor = ChessGame.TeamColor.WHITE;
                 if (state == State.INGAMEBLACK) {
@@ -255,6 +255,10 @@ public class ChessClient {
                 }
                 if (game.getBoard().getPiece(startPos).getTeamColor() != playerColor) {
                     throw new ResponseException(400, "Failed to make move: Piece at given position belongs to opponent.");
+                }
+                ArrayList<ChessPosition> validSpaces = (ArrayList<ChessPosition>) getValidSpaces(params[0]);
+                if (!validSpaces.contains(endPos)) {
+                    throw new ResponseException(400, "Invalid move.");
                 }
                 ChessMove move = new ChessMove(startPos, endPos, null);
                 game.makeMove(move);
