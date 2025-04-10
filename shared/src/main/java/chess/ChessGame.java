@@ -84,7 +84,6 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        System.out.println("Making move. Current turn is " + turn);
         List<ChessMove> validMoves = (List<ChessMove>) validMoves(move.getStartPosition());
         if (validMoves == null) {
             throw new InvalidMoveException();
@@ -109,7 +108,6 @@ public class ChessGame {
         else {
             turn = TeamColor.WHITE;
         }
-        System.out.println("Done making move. Turn is now " + turn);
         if (isInCheckmate(TeamColor.WHITE) || isInCheckmate(TeamColor.BLACK)) {
             over = true;
         }

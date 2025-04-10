@@ -123,7 +123,6 @@ public class ChessBoard {
             }
         }
         return equal;
-        //return Arrays.equals(board, that.board);
     }
 
     @Override

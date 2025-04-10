@@ -90,7 +90,6 @@ public class WebsocketHandler {
 
     private void makeMove(String authToken, Session session, GameData game, ChessMove move) throws IOException {
         try {
-            System.out.println("gonna make a move");
             AuthData authData = authDAO.getAuth(authToken);
             if (!isMoveValid(session, game, move, authData)) {
                 return;
@@ -112,11 +111,9 @@ public class WebsocketHandler {
         try {
             ChessGame game = gameData.game();
             if (game.isOver()) {
-                System.out.println("Game is over.");
                 sendError(session, "Game is already over.");
                 return false;
             }
-            System.out.println("Game is not over.");
             ChessBoard board = game.getBoard();
             ChessPosition startPos = move.getStartPosition();
             if (board.getPiece(startPos) == null) {
@@ -196,7 +193,6 @@ public class WebsocketHandler {
             }
             game.game().setOver(true);
             gameDAO.updateGame(game.gameID(), game.game());
-            System.out.println("Resign request received. Game is now over.");
             var notification = new NotificationMessage(String.format("%s resigned.", authData.username()));
             connections.broadcast(authToken, notification, "all", game.gameID());
         } catch (Exception e) {
