@@ -37,17 +37,15 @@ public class WebsocketHandler {
     public void onMessage(Session session, String message) throws IOException, ResponseException, DataAccessException {
         try {
             UserGameCommand command;
-            System.out.println("Message received: " + message);
             if (message.contains("move")) {
                 command = new Gson().fromJson(message, MakeMoveCommand.class);
             } else {
                 command = new Gson().fromJson(message, UserGameCommand.class);
             }
             GameData game = gameDAO.getGame(command.getGameID());
-            System.out.println("Command username: " + command.getUsername());
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command.getAuthToken(), session, game);
-                case MAKE_MOVE -> makeMove(command.getAuthToken(), session, ((MakeMoveCommand) command).getMove());
+                case MAKE_MOVE -> makeMove(command.getAuthToken(), session, game, ((MakeMoveCommand) command).getMove());
                 case LEAVE -> leave(command.getAuthToken(), session);
                 case RESIGN -> resign(command.getAuthToken(), session);
             }
@@ -79,22 +77,23 @@ public class WebsocketHandler {
             String message = String.format("%s has joined %s.", authData.username(), game.gameName());
             var loadGame = new LoadGameMessage(game);
             var notification = new NotificationMessage(message);
-            System.out.println("message: " + notification.getMessage());
-            connections.broadcast(authToken, loadGame);
-            connections.broadcast(authToken, notification);
+            connections.broadcast(authToken, loadGame, "root");
+            connections.broadcast(authToken, notification, "not root");
         } catch (Exception e) {
             sendError(session, e.getMessage());
         }
     }
 
-    private void makeMove(String authToken, Session session, ChessMove move) throws IOException {
+    private void makeMove(String authToken, Session session, GameData game, ChessMove move) throws IOException {
         try {
             AuthData authData = authDAO.getAuth(authToken);
             String startPos = String.format("%s%s", ('a' + (move.getStartPosition().getColumn() - 1)), "" + move.getStartPosition().getRow());
             String endPos = String.format("%s%s", ('a' + (move.getEndPosition().getColumn() - 1)), "" + move.getEndPosition().getRow());
             String message = String.format("%s has moved their piece from %s to %s.", authData.username(), startPos, endPos);
             var notification = new NotificationMessage(message);
-            connections.broadcast(authToken, notification);
+            var loadGame = new LoadGameMessage(game);
+            connections.broadcast(authToken, notification, "not root");
+            connections.broadcast(authToken, loadGame, "all");
         } catch (Exception e) {
             sendError(session, e.getMessage());
         }
@@ -105,7 +104,7 @@ public class WebsocketHandler {
             connections.remove(authToken);
             var message = String.format("%s left the game.", authData.username());
             var notification = new NotificationMessage(message);
-            connections.broadcast(authToken, notification);
+            connections.broadcast(authToken, notification, "not root");
         } catch (Exception e) {
             sendError(session, e.getMessage());
         }
@@ -114,7 +113,7 @@ public class WebsocketHandler {
         try {
             AuthData authData = authDAO.getAuth(authToken);
             var notification = new NotificationMessage(String.format("%s resigned.", authData.username()));
-            connections.broadcast(authToken, notification);
+            connections.broadcast(authToken, notification, "all");
         } catch (Exception e) {
             sendError(session, e.getMessage());
         }

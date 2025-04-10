@@ -46,7 +46,6 @@ public class WebsocketCommunicator extends Endpoint {
                 }
             });
         } catch (Exception e) {
-            System.out.println("Error creating session.");
             throw new ResponseException(500, e.getMessage());
         }
     }

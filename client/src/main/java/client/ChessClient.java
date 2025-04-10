@@ -177,7 +177,6 @@ public class ChessClient {
                     throw new ResponseException(400, "Game does not exist.");
                 }
                 int id = game.gameID();
-                System.out.println("name: " + name);
                 ws = new WebsocketCommunicator(observer, url, authToken, id);
                 ws.connect();
                 String position = "an observer";

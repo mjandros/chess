@@ -24,10 +24,16 @@ public class ConnectionManager {
         connections.remove(visitorName);
     }
 
-    public void broadcast(String username, ServerMessage message) throws IOException {
+    public void broadcast(String username, ServerMessage message, String target) throws IOException {
+        String msg;
         if (message.getClass() == NotificationMessage.class) {
-            String msg = new Gson().toJson(message);
-            System.out.println("json message: " + msg);
+            msg = new Gson().toJson(message);
+        } else if (message.getClass() == LoadGameMessage.class) {
+            msg = new Gson().toJson(new LoadGameMessage(((LoadGameMessage) message).getGame()));
+        } else {
+            msg = ((ErrorMessage) message).getMsg();
+        }
+        if (target.equals("not root")) {
             var removeList = new ArrayList<Connection>();
             for (var c : connections.values()) {
                 if (c.session.isOpen()) {
@@ -42,18 +48,16 @@ public class ConnectionManager {
             for (var c : removeList) {
                 connections.remove(c.username);
             }
-        } else {
-            String msg;
-            if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-                msg = new Gson().toJson(new LoadGameMessage(((LoadGameMessage) message).getGame()));
-            } else {
-                msg = ((ErrorMessage) message).getMsg();
-            }
+        } else if (target.equals("root")) {
             for (var c : connections.values()) {
                 if (c.username.equals(username)) {
                     c.send(msg);
                     break;
                 }
+            }
+        } else {
+            for (var c : connections.values()) {
+                c.send(msg);
             }
         }
     }
