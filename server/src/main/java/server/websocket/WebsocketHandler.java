@@ -50,8 +50,8 @@ public class WebsocketHandler {
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command.getAuthToken(), session, game);
                 case MAKE_MOVE -> makeMove(command.getAuthToken(), session, game, ((MakeMoveCommand) command).getMove());
-                case LEAVE -> leave(command.getAuthToken(), session);
-                case RESIGN -> resign(command.getAuthToken(), session);
+                case LEAVE -> leave(command.getAuthToken(), session, game);
+                case RESIGN -> resign(command.getAuthToken(), session, game);
             }
         } catch (Exception e) {
             sendError(session, e.getMessage());
@@ -112,9 +112,11 @@ public class WebsocketHandler {
         try {
             ChessGame game = gameData.game();
             if (game.isOver()) {
+                System.out.println("Game is over.");
                 sendError(session, "Game is already over.");
                 return false;
             }
+            System.out.println("Game is not over.");
             ChessBoard board = game.getBoard();
             ChessPosition startPos = move.getStartPosition();
             if (board.getPiece(startPos) == null) {
@@ -130,9 +132,8 @@ public class WebsocketHandler {
                 sendError(session, "Must be playing game to make a move.");
                 return false;
             }
-            System.out.println("checking move validity. Player " + authData.username() + " is " + playerColor);
             if (!game.getTeamTurn().equals(playerColor)) {
-                sendError(session, "Current turn is " + game.getTeamTurn() + ". You are " + playerColor + ".");
+                sendError(session, "Current turn is " + game.getTeamTurn() + ".");
                 return false;
             }
             if (board.getPiece(startPos).getTeamColor() != playerColor) {
@@ -149,6 +150,7 @@ public class WebsocketHandler {
             }
             if (!validMoves.contains(move.getEndPosition())) {
                 sendError(session, "Invalid move.");
+                return false;
             }
             return true;
         } catch (Exception e) {
@@ -156,10 +158,22 @@ public class WebsocketHandler {
             return false;
         }
     }
-    private void leave(String authToken, Session session) throws IOException {
+    private void leave(String authToken, Session session, GameData game) throws IOException {
         try {
             AuthData authData = authDAO.getAuth(authToken);
             connections.remove(authToken);
+            String playerColor;
+            if (game.whiteUsername().equals(authData.username())) {
+                playerColor = "REMOVE_WHITE";
+            }
+            else if (game.blackUsername().equals(authData.username())) {
+                playerColor = "REMOVE_BLACK";
+
+            } else {
+                sendError(session, "Invalid request.");
+                return;
+            }
+            gameDAO.updatePlayer(game.gameID(), playerColor, authData.username());
             var message = String.format("%s left the game.", authData.username());
             var notification = new NotificationMessage(message);
             connections.broadcast(authToken, notification, "not root");
@@ -167,9 +181,20 @@ public class WebsocketHandler {
             sendError(session, e.getMessage());
         }
     }
-    private void resign(String authToken, Session session) throws IOException {
+    private void resign(String authToken, Session session, GameData game) throws IOException {
         try {
             AuthData authData = authDAO.getAuth(authToken);
+            if (!game.whiteUsername().equals(authData.username()) && !game.blackUsername().equals(authData.username())) {
+                sendError(session, "Must be a player to resign.");
+                return;
+            }
+            if (game.game().isOver()) {
+                sendError(session, "Game is already over.");
+                return;
+            }
+            game.game().setOver(true);
+            gameDAO.updateGame(game.gameID(), game.game());
+            System.out.println("Resign request received. Game is now over.");
             var notification = new NotificationMessage(String.format("%s resigned.", authData.username()));
             connections.broadcast(authToken, notification, "all");
         } catch (Exception e) {

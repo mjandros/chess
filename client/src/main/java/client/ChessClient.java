@@ -227,12 +227,6 @@ public class ChessClient {
             if (game == null) {
                 throw new ResponseException(400, "Game does not exist.");
             }
-            int id = game.gameID();
-            String playerColor = "REMOVE_WHITE";
-            if (state == State.INGAMEBLACK) {
-                playerColor = "REMOVE_BLACK";
-            }
-            server.joinGame(playerColor, id, authToken);
             ws.leave();
             ws = null;
             state = State.LOGGEDIN;
@@ -328,8 +322,6 @@ public class ChessClient {
             throw new ResponseException(400, "Must be in a game as a player to resign.");
         }
         try {
-            GameData game = gameNumbers.get(currentGame);
-            game.game().setOver(true);
             ws.resign();
             return String.format("%s resigned.", name);
         } catch (Exception e) {
