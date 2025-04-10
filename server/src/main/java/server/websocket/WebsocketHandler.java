@@ -77,12 +77,12 @@ public class WebsocketHandler {
     private void connect(String authToken, Session session, GameData game) throws IOException {
         try {
             AuthData authData = authDAO.getAuth(authToken);
-            connections.add(authToken, session);
+            connections.add(authToken, session, game.gameID());
             String message = String.format("%s has joined %s.", authData.username(), game.gameName());
             var loadGame = new LoadGameMessage(game);
             var notification = new NotificationMessage(message);
-            connections.broadcast(authToken, loadGame, "root");
-            connections.broadcast(authToken, notification, "not root");
+            connections.broadcast(authToken, loadGame, "root", game.gameID());
+            connections.broadcast(authToken, notification, "not root", game.gameID());
         } catch (Exception e) {
             sendError(session, e.getMessage());
         }
@@ -102,8 +102,8 @@ public class WebsocketHandler {
             String message = String.format("%s has moved their piece from %s to %s.", authData.username(), startPos, endPos);
             var notification = new NotificationMessage(message);
             var loadGame = new LoadGameMessage(game);
-            connections.broadcast(authToken, notification, "not root");
-            connections.broadcast(authToken, loadGame, "all");
+            connections.broadcast(authToken, notification, "not root", game.gameID());
+            connections.broadcast(authToken, loadGame, "all", game.gameID());
         } catch (Exception e) {
             sendError(session, e.getMessage());
         }
@@ -178,7 +178,7 @@ public class WebsocketHandler {
             }
             var message = String.format("%s left the game.", authData.username());
             var notification = new NotificationMessage(message);
-            connections.broadcast(authToken, notification, "not root");
+            connections.broadcast(authToken, notification, "not root", game.gameID());
         } catch (Exception e) {
             sendError(session, e.getMessage());
         }
@@ -198,7 +198,7 @@ public class WebsocketHandler {
             gameDAO.updateGame(game.gameID(), game.game());
             System.out.println("Resign request received. Game is now over.");
             var notification = new NotificationMessage(String.format("%s resigned.", authData.username()));
-            connections.broadcast(authToken, notification, "all");
+            connections.broadcast(authToken, notification, "all", game.gameID());
         } catch (Exception e) {
             sendError(session, e.getMessage());
         }

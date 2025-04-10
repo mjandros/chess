@@ -15,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionManager {
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
 
-    public void add(String authToken, Session session) {
-        var connection = new Connection(authToken, session);
+    public void add(String authToken, Session session, int gameID) {
+        var connection = new Connection(authToken, session, gameID);
         connections.put(authToken, connection);
     }
 
@@ -24,7 +24,7 @@ public class ConnectionManager {
         connections.remove(visitorName);
     }
 
-    public void broadcast(String username, ServerMessage message, String target) throws IOException {
+    public void broadcast(String username, ServerMessage message, String target, int gameID) throws IOException {
         String msg;
         if (message.getClass() == NotificationMessage.class) {
             msg = new Gson().toJson(message);
@@ -37,7 +37,7 @@ public class ConnectionManager {
             var removeList = new ArrayList<Connection>();
             for (var c : connections.values()) {
                 if (c.session.isOpen()) {
-                    if (!c.username.equals(username)) {
+                    if (!c.username.equals(username) && c.gameID == gameID) {
                         c.send(msg);
                     }
                 } else {
@@ -50,14 +50,16 @@ public class ConnectionManager {
             }
         } else if (target.equals("root")) {
             for (var c : connections.values()) {
-                if (c.username.equals(username)) {
+                if (c.username.equals(username) && c.gameID == gameID) {
                     c.send(msg);
                     break;
                 }
             }
         } else {
             for (var c : connections.values()) {
-                c.send(msg);
+                if (c.gameID == gameID) {
+                    c.send(msg);
+                }
             }
         }
     }
