@@ -8,6 +8,10 @@ import javax.websocket.*;
 import java.net.URI;
 import websocket.commands.UserGameCommand;
 import websocket.commands.types.MakeMoveCommand;
+import websocket.messages.ServerMessage;
+import websocket.messages.types.ErrorMessage;
+import websocket.messages.types.LoadGameMessage;
+import websocket.messages.types.NotificationMessage;
 
 public class WebsocketCommunicator extends Endpoint {
 
@@ -15,10 +19,11 @@ public class WebsocketCommunicator extends Endpoint {
     public String authToken;
     public int gameID;
     public String username;
+    public ServerMessageObserver observer;
 
-    public WebsocketCommunicator(String url, String username, String authToken, int gameID) throws Exception {
+    public WebsocketCommunicator(ServerMessageObserver observer, String url, String authToken, int gameID) throws Exception {
         try {
-            this.username = username;
+            this.observer = observer;
             this.authToken = authToken;
             this.gameID = gameID;
             url = url.replace("http", "ws");
@@ -27,8 +32,17 @@ public class WebsocketCommunicator extends Endpoint {
             this.session = container.connectToServer(this, uri);
 
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
                 public void onMessage(String message) {
-                    System.out.println(message);
+                    Gson gson = new Gson();
+                    ServerMessage temp = gson.fromJson(message, ServerMessage.class);
+
+                    ServerMessage serverMessage = switch (temp.getServerMessageType()) {
+                        case LOAD_GAME -> gson.fromJson(message, LoadGameMessage.class);
+                        case NOTIFICATION -> gson.fromJson(message, NotificationMessage.class);
+                        case ERROR -> gson.fromJson(message, ErrorMessage.class);
+                    };
+                    observer.notify(serverMessage);
                 }
             });
         } catch (Exception e) {

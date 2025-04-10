@@ -15,7 +15,7 @@ public class Repl implements ServerMessageObserver {
 
     public Repl(int port) {
         var url = "http://localhost:" + port;
-        client = new ChessClient(port, url);
+        client = new ChessClient(port, url, this);
     }
 
     public void run() {
@@ -51,13 +51,15 @@ public class Repl implements ServerMessageObserver {
     }
 
     public void notify(ServerMessage message) {
-        String msg = "";
-        if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
-            msg = ((NotificationMessage) message).getMsg();
-        } else if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+        String msg;
+        if (message.getClass() == NotificationMessage.class) {
+            msg = ((NotificationMessage) message).getMessage();
+        } else if (message.getClass() == LoadGameMessage.class) {
             msg = ((LoadGameMessage) message).getGame().toString();
-        } else if (message.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+        } else if (message.getClass() == ErrorMessage.class) {
             msg = ((ErrorMessage) message).getMsg();
+        } else {
+            msg = "what";
         }
         System.out.println(SET_TEXT_COLOR_RED + msg);
         printPrompt();

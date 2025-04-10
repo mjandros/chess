@@ -31,49 +31,53 @@ public class WebsocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, ResponseException, DataAccessException {
         UserGameCommand command;
+        System.out.println("Message received: " + message);
         if (message.contains("move")) {
             command = new Gson().fromJson(message, MakeMoveCommand.class);
         } else {
             command = new Gson().fromJson(message, UserGameCommand.class);
         }
         GameData game = gameDAO.getGame(command.getGameID());
+        System.out.println("Command username: " + command.getUsername());
         switch (command.getCommandType()) {
-            case CONNECT -> connect(command.getUsername(), session, game);
-            case MAKE_MOVE -> makeMove(command.getUsername(), ((MakeMoveCommand) command).getMove());
-            case LEAVE -> leave(command.getUsername());
-            case RESIGN -> resign(command.getUsername());
+            case CONNECT -> connect(command.getAuthToken(), session, game);
+            case MAKE_MOVE -> makeMove(command.getAuthToken(), ((MakeMoveCommand) command).getMove());
+            case LEAVE -> leave(command.getAuthToken());
+            case RESIGN -> resign(command.getAuthToken());
         }
     }
 
     @OnWebSocketError
     public void onError(Throwable t) {
         System.out.println("Error: " + t.getMessage());
+        t.printStackTrace();
     }
 
-    private void connect(String username, Session session, GameData game) throws IOException {
-        connections.add(username, session);
-        String message = String.format("%s has joined %s.", username, game.gameName());
+    private void connect(String authToken, Session session, GameData game) throws IOException {
+        connections.add(authToken, session);
+        String message = String.format("%s has joined %s.", "player", game.gameName()); //replace w actual username
         var loadGame = new LoadGameMessage(game);
         var notification = new NotificationMessage(message);
-        connections.broadcast(username, loadGame);
-        connections.broadcast(username, notification);
+        System.out.println("message: " + notification.getMessage());
+        connections.broadcast(authToken, loadGame);
+        connections.broadcast(authToken, notification);
     }
 
-    private void makeMove(String username, ChessMove move) throws IOException {
+    private void makeMove(String authToken, ChessMove move) throws IOException {
         String startPos = String.format("%s%s", ('a' + (move.getStartPosition().getColumn() - 1)), "" + move.getStartPosition().getRow());
         String endPos = String.format("%s%s", ('a' + (move.getEndPosition().getColumn() - 1)), "" + move.getEndPosition().getRow());
-        String message = String.format("%s has moved their piece from %s to %s.", username, startPos, endPos);
+        String message = String.format("%s has moved their piece from %s to %s.", "player", startPos, endPos); //replace w username
         var notification = new NotificationMessage(message);
-        connections.broadcast(username, notification);
+        connections.broadcast(authToken, notification);
     }
-    private void leave(String username) throws IOException {
-        connections.remove(username);
-        var message = String.format("%s left the game.", username);
+    private void leave(String authToken) throws IOException {
+        connections.remove(authToken);
+        var message = String.format("%s left the game.", "player"); //same here
         var notification = new NotificationMessage(message);
-        connections.broadcast(username, notification);
+        connections.broadcast(authToken, notification);
     }
-    private void resign(String username) throws IOException {
-        var notification = new NotificationMessage(String.format("%s resigned.", username));
-        connections.broadcast(username, notification);
+    private void resign(String authToken) throws IOException {
+        var notification = new NotificationMessage(String.format("%s resigned.", "player")); //yeah
+        connections.broadcast(authToken, notification);
     }
 }

@@ -1,12 +1,14 @@
 package client;
 
 import chess.*;
+import client.websocket.ServerMessageObserver;
 import client.websocket.WebsocketCommunicator;
 import exception.ResponseException;
 import model.GameData;
 import model.results.LoginResult;
 import model.results.RegisterResult;
 import model.results.*;
+import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.*;
 import java.util.*;
@@ -21,12 +23,14 @@ public class ChessClient {
     public String board;
     private WebsocketCommunicator ws;
     private final String url;
+    public final ServerMessageObserver observer;
 
 
-    public ChessClient(int port, String url){
+    public ChessClient(int port, String url, ServerMessageObserver observer){
         server = new ServerFacade(port);
         gameNumbers = new HashMap<>();
         this.url = url;
+        this.observer = observer;
     }
 
     public String eval(String input) {
@@ -173,7 +177,8 @@ public class ChessClient {
                     throw new ResponseException(400, "Game does not exist.");
                 }
                 int id = game.gameID();
-                ws = new WebsocketCommunicator(url, name, authToken, id);
+                System.out.println("name: " + name);
+                ws = new WebsocketCommunicator(observer, url, authToken, id);
                 ws.connect();
                 String position = "an observer";
                 if (status.equals("play")) {
