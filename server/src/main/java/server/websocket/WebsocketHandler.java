@@ -160,10 +160,6 @@ public class WebsocketHandler {
             AuthData authData = authDAO.getAuth(authToken);
             connections.remove(authToken);
             String playerColor;
-            if (game.whiteUsername() == null && game.blackUsername() == null) {
-                sendError(session, "Game is already empty.");
-                return;
-            }
             if (game.whiteUsername() != null && game.whiteUsername().equals(authData.username())) {
                 playerColor = "REMOVE_WHITE";
                 gameDAO.updatePlayer(game.gameID(), playerColor, authData.username());

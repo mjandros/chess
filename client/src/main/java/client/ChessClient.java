@@ -53,7 +53,7 @@ public class ChessClient {
                 case "moves" -> highlightMoves(params);
                 case "quit" -> "quit";
                 case "clear" -> clearDB();
-                default -> help();
+                default -> help(params);
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
@@ -329,7 +329,7 @@ public class ChessClient {
         }
         throw new ResponseException(400, "Expected: [A-H][1-8]");
     }
-    public String help() {
+    public String help(String... params) throws ResponseException {
         if (state == State.LOGGEDOUT) {
             return """
                     register <USERNAME> <PASSWORD> <EMAIL> - create an account
@@ -352,15 +352,54 @@ public class ChessClient {
                     board - redraw and display board
                     leave - leave game
                     """;
+
         }
-        return """
-                help - list all available moves
-                board - redraw and display board
-                leave - leave game
-                move [A-H][1-8] [A-H][1-8] - move from the first space listed to the second
-                resign - forfeit the game
-                moves [A-H][1-8] - display board with available moves highlighted
+        if (params.length > 0) {
+            return getAllMoves();
+        } else {
+            return """
+                    board - redraw and display board
+                    move [A-H][1-8] [A-H][1-8] - make move from first position to second
+                    leave - leave game
+                    moves [A-H][1-8] - highlight available moves for piece at given space
+                    resign - forfeit the game
+                    help moves - list all available moves
+                    help - list commands
+                    """;
+        }
+    }
+
+    private String getAllMoves() throws ResponseException {
+        String ret = """
                 """;
+        GameData game = gameNumbers.get(currentGame);
+        ChessBoard chessBoard = game.game().getBoard();
+        for (int r = 1; r <= 8; r++) {
+            for (int c = 1; c <= 8; c++) {
+                ChessPosition pos = new ChessPosition(r, c);
+                ChessGame.TeamColor playerColor = ChessGame.TeamColor.WHITE;
+                if (game.blackUsername() != null && game.blackUsername().equals(name)) {
+                    playerColor = ChessGame.TeamColor.BLACK;
+                }
+                if (chessBoard.getPiece(pos) != null && chessBoard.getPiece(pos).getTeamColor() == playerColor) {
+                    String space = String.valueOf((char) ('a' + (c - 1))) + r;
+                    ArrayList<ChessPosition> valids = (ArrayList<ChessPosition>) getValidSpaces(space);
+                    if (!valids.isEmpty()) {
+                        space = ("" + space.charAt(0)).toUpperCase() + space.charAt(1);
+                        ret += space + ": ";
+                        for (ChessPosition end : valids) {
+                            ret += String.valueOf((char) ('a' + end.getColumn() - 1)).toUpperCase() + end.getRow();
+                            if (valids.indexOf(end) != valids.size() - 1) {
+                                ret +=", ";
+                            }
+                        }
+                        ret += "\n";
+                    }
+
+                }
+            }
+        }
+        return ret;
     }
 
     public String clearDB() throws ResponseException {
