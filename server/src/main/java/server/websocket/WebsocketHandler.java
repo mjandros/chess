@@ -163,17 +163,19 @@ public class WebsocketHandler {
             AuthData authData = authDAO.getAuth(authToken);
             connections.remove(authToken);
             String playerColor;
-            if (game.whiteUsername().equals(authData.username())) {
-                playerColor = "REMOVE_WHITE";
-            }
-            else if (game.blackUsername().equals(authData.username())) {
-                playerColor = "REMOVE_BLACK";
-
-            } else {
-                sendError(session, "Invalid request.");
+            if (game.whiteUsername() == null && game.blackUsername() == null) {
+                sendError(session, "Game is already empty.");
                 return;
             }
-            gameDAO.updatePlayer(game.gameID(), playerColor, authData.username());
+            if (game.whiteUsername() != null && game.whiteUsername().equals(authData.username())) {
+                playerColor = "REMOVE_WHITE";
+                gameDAO.updatePlayer(game.gameID(), playerColor, authData.username());
+            }
+            else if (game.blackUsername() != null && game.blackUsername().equals(authData.username())) {
+                playerColor = "REMOVE_BLACK";
+                gameDAO.updatePlayer(game.gameID(), playerColor, authData.username());
+
+            }
             var message = String.format("%s left the game.", authData.username());
             var notification = new NotificationMessage(message);
             connections.broadcast(authToken, notification, "not root");
