@@ -37,7 +37,7 @@ public class Server {
         gameHandler = new GameHandler(gameService);
         appHandler = new AppHandler(appService);
 
-        wsh = new WebsocketHandler(gameDAO);
+        wsh = new WebsocketHandler(gameDAO, authDAO);
     }
 
     public int run(int desiredPort) {

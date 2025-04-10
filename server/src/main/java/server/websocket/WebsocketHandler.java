@@ -1,9 +1,11 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import exception.ResponseException;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
@@ -24,9 +26,11 @@ import java.io.IOException;
 public class WebsocketHandler {
     private final ConnectionManager connections = new ConnectionManager();
     private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
 
-    public WebsocketHandler(GameDAO gameDAO) {
+    public WebsocketHandler(GameDAO gameDAO, AuthDAO authDAO) {
         this.gameDAO = gameDAO;
+        this.authDAO = authDAO;
     }
 
     @OnWebSocketMessage
@@ -43,9 +47,9 @@ public class WebsocketHandler {
             System.out.println("Command username: " + command.getUsername());
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command.getAuthToken(), session, game);
-                case MAKE_MOVE -> makeMove(command.getAuthToken(), ((MakeMoveCommand) command).getMove());
-                case LEAVE -> leave(command.getAuthToken());
-                case RESIGN -> resign(command.getAuthToken());
+                case MAKE_MOVE -> makeMove(command.getAuthToken(), session, ((MakeMoveCommand) command).getMove());
+                case LEAVE -> leave(command.getAuthToken(), session);
+                case RESIGN -> resign(command.getAuthToken(), session);
             }
         } catch (Exception e) {
             sendError(session, e.getMessage());
@@ -69,30 +73,50 @@ public class WebsocketHandler {
     }
 
     private void connect(String authToken, Session session, GameData game) throws IOException {
-        connections.add(authToken, session);
-        String message = String.format("%s has joined %s.", "player", game.gameName()); //replace w actual username
-        var loadGame = new LoadGameMessage(game);
-        var notification = new NotificationMessage(message);
-        System.out.println("message: " + notification.getMessage());
-        connections.broadcast(authToken, loadGame);
-        connections.broadcast(authToken, notification);
+        try {
+            AuthData authData = authDAO.getAuth(authToken);
+            connections.add(authToken, session);
+            String message = String.format("%s has joined %s.", authData.username(), game.gameName());
+            var loadGame = new LoadGameMessage(game);
+            var notification = new NotificationMessage(message);
+            System.out.println("message: " + notification.getMessage());
+            connections.broadcast(authToken, loadGame);
+            connections.broadcast(authToken, notification);
+        } catch (Exception e) {
+            sendError(session, e.getMessage());
+        }
     }
 
-    private void makeMove(String authToken, ChessMove move) throws IOException {
-        String startPos = String.format("%s%s", ('a' + (move.getStartPosition().getColumn() - 1)), "" + move.getStartPosition().getRow());
-        String endPos = String.format("%s%s", ('a' + (move.getEndPosition().getColumn() - 1)), "" + move.getEndPosition().getRow());
-        String message = String.format("%s has moved their piece from %s to %s.", "player", startPos, endPos); //replace w username
-        var notification = new NotificationMessage(message);
-        connections.broadcast(authToken, notification);
+    private void makeMove(String authToken, Session session, ChessMove move) throws IOException {
+        try {
+            AuthData authData = authDAO.getAuth(authToken);
+            String startPos = String.format("%s%s", ('a' + (move.getStartPosition().getColumn() - 1)), "" + move.getStartPosition().getRow());
+            String endPos = String.format("%s%s", ('a' + (move.getEndPosition().getColumn() - 1)), "" + move.getEndPosition().getRow());
+            String message = String.format("%s has moved their piece from %s to %s.", authData.username(), startPos, endPos);
+            var notification = new NotificationMessage(message);
+            connections.broadcast(authToken, notification);
+        } catch (Exception e) {
+            sendError(session, e.getMessage());
+        }
     }
-    private void leave(String authToken) throws IOException {
-        connections.remove(authToken);
-        var message = String.format("%s left the game.", "player"); //same here
-        var notification = new NotificationMessage(message);
-        connections.broadcast(authToken, notification);
+    private void leave(String authToken, Session session) throws IOException {
+        try {
+            AuthData authData = authDAO.getAuth(authToken);
+            connections.remove(authToken);
+            var message = String.format("%s left the game.", authData.username());
+            var notification = new NotificationMessage(message);
+            connections.broadcast(authToken, notification);
+        } catch (Exception e) {
+            sendError(session, e.getMessage());
+        }
     }
-    private void resign(String authToken) throws IOException {
-        var notification = new NotificationMessage(String.format("%s resigned.", "player")); //yeah
-        connections.broadcast(authToken, notification);
+    private void resign(String authToken, Session session) throws IOException {
+        try {
+            AuthData authData = authDAO.getAuth(authToken);
+            var notification = new NotificationMessage(String.format("%s resigned.", authData.username()));
+            connections.broadcast(authToken, notification);
+        } catch (Exception e) {
+            sendError(session, e.getMessage());
+        }
     }
 }
