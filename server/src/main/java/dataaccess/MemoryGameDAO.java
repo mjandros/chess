@@ -55,4 +55,8 @@ public class MemoryGameDAO implements GameDAO {
     public void clearGames() {
         games.clear();
     }
+
+    public void updateGame(int gameID, ChessGame game) {
+
+    }
 }

@@ -90,6 +90,12 @@ public class MySQLGameDAO implements GameDAO {
         executeUpdate(statement, username, gameID);
     }
 
+    public void updateGame(int gameID, ChessGame game) throws ResponseException {
+        var statement = "UPDATE games SET game = ? WHERE id = ?";
+        var json = new Gson().toJson(game);
+        executeUpdate(statement, json, gameID);
+    }
+
     public void clearGames() throws ResponseException {
         executeUpdate("TRUNCATE games");
     }

@@ -14,6 +14,7 @@ public class ChessGame {
 
     TeamColor turn;
     ChessBoard board;
+    boolean over = false;
     public ChessGame() {
         setTeamTurn(TeamColor.WHITE);
         ChessBoard cb = new ChessBoard();
@@ -27,6 +28,7 @@ public class ChessGame {
     public TeamColor getTeamTurn() {
         return turn;
     }
+    public boolean isOver() { return over; }
 
     /**
      * Set's which teams turn it is
@@ -36,6 +38,7 @@ public class ChessGame {
     public void setTeamTurn(TeamColor team) {
         turn = team;
     }
+    public void setOver(boolean over) { this.over = over; }
 
     /**
      * Enum identifying the 2 possible teams in a chess game
@@ -81,6 +84,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        System.out.println("Making move. Current turn is " + turn);
         List<ChessMove> validMoves = (List<ChessMove>) validMoves(move.getStartPosition());
         if (validMoves == null) {
             throw new InvalidMoveException();
@@ -104,6 +108,10 @@ public class ChessGame {
         }
         else {
             turn = TeamColor.WHITE;
+        }
+        System.out.println("Done making move. Turn is now " + turn);
+        if (isInCheckmate(TeamColor.WHITE) || isInCheckmate(TeamColor.BLACK)) {
+            over = true;
         }
     }
 

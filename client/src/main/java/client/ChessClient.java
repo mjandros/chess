@@ -268,7 +268,7 @@ public class ChessClient {
                     ws.makeMove(move, false);
                     //throw new ResponseException(400, "Invalid move.");
                 }
-                game.makeMove(move);
+                //game.makeMove(move);
                 ws.makeMove(move, true);
                 return String.format("Moved from %s to %s.", params[0], params[1]);
             } catch (Exception e) {
@@ -327,7 +327,14 @@ public class ChessClient {
         if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
             throw new ResponseException(400, "Must be in a game as a player to resign.");
         }
-        return "";
+        try {
+            GameData game = gameNumbers.get(currentGame);
+            game.game().setOver(true);
+            ws.resign();
+            return String.format("%s resigned.", name);
+        } catch (Exception e) {
+            throw new ResponseException(400, "Failed to resign: " + e.getMessage());
+        }
     }
     public String highlightMoves(String... params) throws ResponseException {
         if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {

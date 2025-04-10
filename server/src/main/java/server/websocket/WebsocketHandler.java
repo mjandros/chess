@@ -90,11 +90,13 @@ public class WebsocketHandler {
 
     private void makeMove(String authToken, Session session, GameData game, ChessMove move) throws IOException {
         try {
+            System.out.println("gonna make a move");
             AuthData authData = authDAO.getAuth(authToken);
-            if (!isMoveValid(game, move, authData)) {
-                sendError(session, "Invalid move.");
+            if (!isMoveValid(session, game, move, authData)) {
                 return;
             }
+            game.game().makeMove(move);
+            gameDAO.updateGame(game.gameID(), game.game());
             String startPos = String.format("%s%s", ('a' + (move.getStartPosition().getColumn() - 1)), "" + move.getStartPosition().getRow());
             String endPos = String.format("%s%s", ('a' + (move.getEndPosition().getColumn() - 1)), "" + move.getEndPosition().getRow());
             String message = String.format("%s has moved their piece from %s to %s.", authData.username(), startPos, endPos);
@@ -106,12 +108,17 @@ public class WebsocketHandler {
             sendError(session, e.getMessage());
         }
     }
-    private boolean isMoveValid(GameData gameData, ChessMove move, AuthData authData) {
+    private boolean isMoveValid(Session session, GameData gameData, ChessMove move, AuthData authData) throws IOException {
         try {
             ChessGame game = gameData.game();
+            if (game.isOver()) {
+                sendError(session, "Game is already over.");
+                return false;
+            }
             ChessBoard board = game.getBoard();
             ChessPosition startPos = move.getStartPosition();
             if (board.getPiece(startPos) == null) {
+                sendError(session, "No piece at given position.");
                 return false;
             }
             ChessGame.TeamColor playerColor;
@@ -120,23 +127,32 @@ public class WebsocketHandler {
             } else if (authData.username().equals(gameData.blackUsername())) {
                 playerColor = ChessGame.TeamColor.BLACK;
             } else {
+                sendError(session, "Must be playing game to make a move.");
                 return false;
             }
-            if (game.getTeamTurn() != playerColor) {
+            System.out.println("checking move validity. Player " + authData.username() + " is " + playerColor);
+            if (!game.getTeamTurn().equals(playerColor)) {
+                sendError(session, "Current turn is " + game.getTeamTurn() + ". You are " + playerColor + ".");
                 return false;
             }
             if (board.getPiece(startPos).getTeamColor() != playerColor) {
+                sendError(session, "Not your piece.");
                 return false;
             }
             if (game.getTeamTurn() != board.getPiece(startPos).getTeamColor()) {
+                sendError(session, "Invalid move.");
                 return false;
             }
             ArrayList<ChessPosition> validMoves = new ArrayList<>();
             for (ChessMove cm : board.getPiece(startPos).pieceMoves(board, startPos)) {
                 validMoves.add(cm.getEndPosition());
             }
-            return validMoves.contains(move.getEndPosition());
+            if (!validMoves.contains(move.getEndPosition())) {
+                sendError(session, "Invalid move.");
+            }
+            return true;
         } catch (Exception e) {
+            sendError(session, "Invalid move.");
             return false;
         }
     }
