@@ -254,19 +254,22 @@ public class ChessClient {
                 if (state == State.INGAMEBLACK) {
                     playerColor = ChessGame.TeamColor.BLACK;
                 }
+                ChessMove move = new ChessMove(startPos, endPos, null);
                 if (game.getBoard().getPiece(startPos) == null) {
-                    throw new ResponseException(400, "Failed to make move: No piece at given position.");
+                    ws.makeMove(move, false);
+                    //throw new ResponseException(400, "Failed to make move: No piece at given position.");
                 }
                 if (game.getBoard().getPiece(startPos).getTeamColor() != playerColor) {
-                    throw new ResponseException(400, "Failed to make move: Piece at given position belongs to opponent.");
+                    ws.makeMove(move, false);
+                    //throw new ResponseException(400, "Failed to make move: Piece at given position belongs to opponent.");
                 }
                 ArrayList<ChessPosition> validSpaces = (ArrayList<ChessPosition>) getValidSpaces(params[0]);
                 if (!validSpaces.contains(endPos)) {
-                    throw new ResponseException(400, "Invalid move.");
+                    ws.makeMove(move, false);
+                    //throw new ResponseException(400, "Invalid move.");
                 }
-                ChessMove move = new ChessMove(startPos, endPos, null);
                 game.makeMove(move);
-                ws.makeMove(move);
+                ws.makeMove(move, true);
                 return String.format("Moved from %s to %s.", params[0], params[1]);
             } catch (Exception e) {
                 throw new ResponseException(400, "Failed to make move: " + e.getMessage());
