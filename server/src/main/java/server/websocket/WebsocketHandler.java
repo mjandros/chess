@@ -6,6 +6,7 @@ import dataaccess.GameDAO;
 import exception.ResponseException;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import server.Server;
@@ -42,6 +43,11 @@ public class WebsocketHandler {
             case LEAVE -> leave(command.getUsername());
             case RESIGN -> resign(command.getUsername());
         }
+    }
+
+    @OnWebSocketError
+    public void onError(Throwable t) {
+        System.out.println("Error: " + t.getMessage());
     }
 
     private void connect(String username, Session session, GameData game) throws IOException {

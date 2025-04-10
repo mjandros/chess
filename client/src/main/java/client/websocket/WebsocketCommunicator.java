@@ -23,10 +23,8 @@ public class WebsocketCommunicator extends Endpoint {
             this.gameID = gameID;
             url = url.replace("http", "ws");
             URI uri = new URI(url + "/ws");
-            System.out.printf("URL: %s\nURI: %s\n", url, uri);
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, uri);
-            System.out.println("Session created.");
 
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 public void onMessage(String message) {

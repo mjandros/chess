@@ -2,6 +2,9 @@ package server.websocket;
 
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
+import websocket.messages.types.ErrorMessage;
+import websocket.messages.types.LoadGameMessage;
+import websocket.messages.types.NotificationMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +28,7 @@ public class ConnectionManager {
             for (var c : connections.values()) {
                 if (c.session.isOpen()) {
                     if (!c.username.equals(username)) {
-                        c.send(message.toString());
+                        c.send(((NotificationMessage) message).getMsg());
                     }
                 } else {
                     removeList.add(c);
@@ -36,9 +39,15 @@ public class ConnectionManager {
                 connections.remove(c.username);
             }
         } else {
+            String msg = "";
+            if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+                msg = ((LoadGameMessage) message).getGame().toString();
+            } else {
+                msg = ((ErrorMessage) message).getMsg();
+            }
             for (var c : connections.values()) {
                 if (c.username.equals(username)) {
-                    c.send(message.toString());
+                    c.send(msg);
                     break;
                 }
             }
