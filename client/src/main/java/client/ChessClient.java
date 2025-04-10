@@ -16,6 +16,7 @@ import java.util.*;
 public class ChessClient {
     private String name = null;
     public State state = State.LOGGEDOUT;
+    public State saveState;
     private final ServerFacade server;
     private Map<Integer, GameData> gameNumbers;
     private int currentGame = 0;
@@ -53,6 +54,7 @@ public class ChessClient {
                 case "moves" -> highlightMoves(params);
                 case "quit" -> "quit";
                 case "clear" -> clearDB();
+                case "cancel" -> cancelResign();
                 default -> help(params);
             };
         } catch (ResponseException ex) {
@@ -178,7 +180,6 @@ public class ChessClient {
                 }
                 int id = game.gameID();
                 ws = new WebsocketCommunicator(observer, url, authToken, id);
-                ws.connect();
                 String position = "an observer";
                 if (status.equals("play")) {
                     position = params[1].toUpperCase();
@@ -193,7 +194,8 @@ public class ChessClient {
                     state = State.INGAMEOBSERVER;
                     board = setUpBoard("WHITE", game.game().getBoard(), null);
                 }
-                return String.format("Successfully joined %s as %s.", game.gameName(), position);
+                ws.connect(position);
+                return String.format("Successfully joined %s as %s. %s", game.gameName(), position, board);
             } catch (Exception e) {
                 throw new ResponseException(400, "Failed to join game: " + e.getMessage());
             }
@@ -298,15 +300,29 @@ public class ChessClient {
             throw new ResponseException(400, "Invalid format.");
         }
     }
+    public String cancelResign() throws ResponseException {
+        if (state != State.RESIGN) {
+            throw new ResponseException(400, "Invalid command. Type 'help' for help.");
+        }
+        state = saveState;
+        return "Resignation canceled.";
+    }
     public String resign() throws ResponseException {
         if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
             throw new ResponseException(400, "Must be in a game as a player to resign.");
         }
-        try {
-            ws.resign();
-            return String.format("%s resigned.", name);
-        } catch (Exception e) {
-            throw new ResponseException(400, "Failed to resign: " + e.getMessage());
+        if (state == State.RESIGN) {
+            try {
+                state = saveState;
+                ws.resign();
+                return String.format("%s resigned.", name);
+            } catch (Exception e) {
+                throw new ResponseException(400, "Failed to resign: " + e.getMessage());
+            }
+        } else {
+            saveState = state;
+            state = State.RESIGN;
+            return "Are you sure? Type 'resign' to confirm or 'cancel' to cancel.";
         }
     }
     public String highlightMoves(String... params) throws ResponseException {

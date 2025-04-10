@@ -48,7 +48,7 @@ public class WebsocketHandler {
             }
             GameData game = gameDAO.getGame(command.getGameID());
             switch (command.getCommandType()) {
-                case CONNECT -> connect(command.getAuthToken(), session, game);
+                case CONNECT -> connect(command.getAuthToken(), session, game, command.getPosition());
                 case MAKE_MOVE -> makeMove(command.getAuthToken(), session, game, ((MakeMoveCommand) command).getMove());
                 case LEAVE -> leave(command.getAuthToken(), session, game);
                 case RESIGN -> resign(command.getAuthToken(), session, game);
@@ -74,14 +74,14 @@ public class WebsocketHandler {
         t.printStackTrace();
     }
 
-    private void connect(String authToken, Session session, GameData game) throws IOException {
+    private void connect(String authToken, Session session, GameData game, String position) throws IOException {
         try {
             AuthData authData = authDAO.getAuth(authToken);
             connections.add(authToken, session, game.gameID());
-            String message = String.format("%s has joined %s.", authData.username(), game.gameName());
+            String message = String.format("%s has joined %s as %s.", authData.username(), game.gameName(), position);
             var loadGame = new LoadGameMessage(game);
             var notification = new NotificationMessage(message);
-            connections.broadcast(authToken, loadGame, "root", game.gameID());
+            //connections.broadcast(authToken, loadGame, "root", game.gameID());
             connections.broadcast(authToken, notification, "not root", game.gameID());
         } catch (Exception e) {
             sendError(session, e.getMessage());

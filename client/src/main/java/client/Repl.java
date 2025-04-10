@@ -44,6 +44,8 @@ public class Repl implements ServerMessageObserver {
             status = "[LOGGED_IN]";
         } else if (client.state == State.LOGGEDOUT) {
             status = "[LOGGED_OUT]";
+        } else if (client.state == State.RESIGN) {
+            status = "RESIGN?";
         } else {
             status = "[IN_GAME]";
         }

@@ -49,9 +49,9 @@ public class WebsocketCommunicator extends Endpoint {
             throw new ResponseException(500, e.getMessage());
         }
     }
-    public void connect() throws ResponseException {
+    public void connect(String position) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, username, authToken, gameID);
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, username, authToken, gameID, position);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -67,7 +67,7 @@ public class WebsocketCommunicator extends Endpoint {
     }
     public void leave() throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, username, authToken, gameID);
+            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, username, authToken, gameID, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -75,7 +75,7 @@ public class WebsocketCommunicator extends Endpoint {
     }
     public void resign() throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, username, authToken, gameID);
+            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, username, authToken, gameID, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());

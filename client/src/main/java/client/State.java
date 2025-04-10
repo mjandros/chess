@@ -5,5 +5,6 @@ public enum State {
     LOGGEDIN,
     INGAMEWHITE,
     INGAMEBLACK,
-    INGAMEOBSERVER
+    INGAMEOBSERVER,
+    RESIGN
 }
