@@ -16,6 +16,7 @@ import websocket.commands.types.MakeMoveCommand;
 import websocket.messages.ServerMessage;
 import websocket.messages.types.LoadGameMessage;
 import websocket.messages.types.NotificationMessage;
+import websocket.messages.types.ErrorMessage;
 
 import java.io.IOException;
 
@@ -30,21 +31,35 @@ public class WebsocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, ResponseException, DataAccessException {
-        UserGameCommand command;
-        System.out.println("Message received: " + message);
-        if (message.contains("move")) {
-            command = new Gson().fromJson(message, MakeMoveCommand.class);
-        } else {
-            command = new Gson().fromJson(message, UserGameCommand.class);
+        try {
+            UserGameCommand command;
+            System.out.println("Message received: " + message);
+            if (message.contains("move")) {
+                command = new Gson().fromJson(message, MakeMoveCommand.class);
+            } else {
+                command = new Gson().fromJson(message, UserGameCommand.class);
+            }
+            GameData game = gameDAO.getGame(command.getGameID());
+            System.out.println("Command username: " + command.getUsername());
+            switch (command.getCommandType()) {
+                case CONNECT -> connect(command.getAuthToken(), session, game);
+                case MAKE_MOVE -> makeMove(command.getAuthToken(), ((MakeMoveCommand) command).getMove());
+                case LEAVE -> leave(command.getAuthToken());
+                case RESIGN -> resign(command.getAuthToken());
+            }
+        } catch (Exception e) {
+            sendError(session, e.getMessage());
         }
-        GameData game = gameDAO.getGame(command.getGameID());
-        System.out.println("Command username: " + command.getUsername());
-        switch (command.getCommandType()) {
-            case CONNECT -> connect(command.getAuthToken(), session, game);
-            case MAKE_MOVE -> makeMove(command.getAuthToken(), ((MakeMoveCommand) command).getMove());
-            case LEAVE -> leave(command.getAuthToken());
-            case RESIGN -> resign(command.getAuthToken());
+    }
+
+    private void sendError(Session session, String errorMessage) throws IOException {
+        if (!errorMessage.toLowerCase().contains("error")) {
+            errorMessage = "Error: " + errorMessage;
         }
+
+        var error = new ErrorMessage(errorMessage);
+        String msg = new Gson().toJson(error);
+        session.getRemote().sendString(msg);
     }
 
     @OnWebSocketError
