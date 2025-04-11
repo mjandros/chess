@@ -96,7 +96,6 @@ public class WebsocketHandler {
             }
             game.game().makeMove(move);
             gameDAO.updateGame(game.gameID(), game.game());
-            System.out.println(numToStr(move.getStartPosition().getColumn()));
             String startPos = numToStr(move.getStartPosition().getColumn()) + move.getStartPosition().getRow();
             String endPos = numToStr(move.getEndPosition().getColumn()) + move.getEndPosition().getRow();
             String message = String.format("%s has moved their piece from %s to %s.", authData.username(), startPos, endPos);

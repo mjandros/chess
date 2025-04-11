@@ -253,6 +253,9 @@ public class ChessClient {
             try {
                 ChessPosition startPos = parsePos(params[0]);
                 ChessPosition endPos = parsePos(params[1]);
+                if (canPromote(startPos, endPos)) {
+                    throw new ResponseException(400, "Expected: [A-H][1-8] [A-H][1-8] <PROMOTION_PIECE>");
+                }
                 ChessMove move = new ChessMove(startPos, endPos, null);
                 ws.makeMove(move);
                 return String.format("Moved from %s to %s.", params[0], params[1]);
@@ -260,7 +263,32 @@ public class ChessClient {
                 throw new ResponseException(400, "Failed to make move: " + e.getMessage());
             }
         }
+        else if (params.length == 3 && isValidSpace(params[0]) && isValidSpace(params[1])
+                && canPromote(parsePos(params[0]), parsePos(params[1]))) {
+            ChessPiece.PieceType type = switch (params[2].toLowerCase()) {
+                case "queen" -> ChessPiece.PieceType.QUEEN;
+                case "rook" -> ChessPiece.PieceType.ROOK;
+                case "bishop" -> ChessPiece.PieceType.BISHOP;
+                case "knight" -> ChessPiece.PieceType.KNIGHT;
+                default -> ChessPiece.PieceType.PAWN;
+            };
+            if (type.equals(ChessPiece.PieceType.PAWN)) {
+                throw new ResponseException(400, "Expected: [A-H][1-8] [A-H][1-8] <PROMOTION_PIECE>");
+            }
+            ChessMove move = new ChessMove(parsePos(params[0]), parsePos(params[1]), type);
+            ws.makeMove(move);
+            return String.format("Moved from %s to %s. Promoted piece to %s", params[0], params[1], type);
+        }
         throw new ResponseException(400, "Expected: [A-H][1-8] [A-H][1-8]");
+    }
+    private boolean canPromote(ChessPosition start, ChessPosition end) {
+        ChessGame game = gameNumbers.get(currentGame).game();
+        if (game.getBoard().getPiece(start) != null &&
+                game.getBoard().getPiece(start).getPieceType().equals(ChessPiece.PieceType.PAWN) &&
+                ((end.getRow() == 8 && state == State.INGAMEWHITE) || (end.getRow() == 1 && state == State.INGAMEBLACK))) {
+            return true;
+        }
+        return false;
     }
 
     private boolean isValidSpace(String space) {
