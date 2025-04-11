@@ -315,8 +315,7 @@ public class ChessClient {
             int col = space.charAt(0) - 'a' + 1;
             ChessPosition pos = new ChessPosition(Integer.parseInt("" + space.charAt(1)), col);
             ChessBoard chessBoard = game.game().getBoard();
-            ChessPiece piece = chessBoard.getPiece(pos);
-            Collection<ChessMove> moves = piece.pieceMoves(chessBoard, pos);
+            Collection<ChessMove> moves = game.game().validMoves(pos);
             Collection<ChessPosition> validSpaces = new ArrayList<>();
             for (ChessMove cm : moves) {
                 validSpaces.add(cm.getEndPosition());
@@ -362,7 +361,7 @@ public class ChessClient {
         }
     }
     public String highlightMoves(String... params) throws ResponseException {
-        if (state == State.LOGGEDOUT || state == State.LOGGEDIN || state == State.INGAMEOBSERVER) {
+        if (state == State.LOGGEDOUT || state == State.LOGGEDIN) {
             throw new ResponseException(400, "Must be in a game as a player to show moves.");
         }
         if (params.length == 1 && isValidSpace(params[0])) {

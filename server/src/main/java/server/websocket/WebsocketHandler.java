@@ -104,19 +104,19 @@ public class WebsocketHandler {
             connections.broadcast(authToken, notification, "not root", game.gameID());
             connections.broadcast(authToken, loadGame, "all", game.gameID());
             if (game.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                message = "Checkmate. WHITE wins.";
+                message = "Checkmate. " + game.whiteUsername() + " wins.";
                 var checkNotification = new NotificationMessage(message);
                 connections.broadcast(authToken, checkNotification, "all", game.gameID());
             } else if (game.game().isInCheck(ChessGame.TeamColor.WHITE)) {
-                message = "Checkmate. BLACK wins.";
+                message = "Checkmate. " + game.blackUsername() + " wins.";
                 var checkNotification = new NotificationMessage(message);
                 connections.broadcast(authToken, checkNotification, "all", game.gameID());
             } else if (game.game().isInCheck(ChessGame.TeamColor.BLACK)) {
-                message = "BLACK is now in check.";
+                message = game.blackUsername() + " is now in check.";
                 var checkNotification = new NotificationMessage(message);
                 connections.broadcast(authToken, checkNotification, "all", game.gameID());
             } else if (game.game().isInCheck(ChessGame.TeamColor.WHITE)) {
-                message = "WHITE is now in check.";
+                message = game.whiteUsername() + " is now in check.";
                 var checkNotification = new NotificationMessage(message);
                 connections.broadcast(authToken, checkNotification, "all", game.gameID());
             }
