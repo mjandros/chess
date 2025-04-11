@@ -56,14 +56,14 @@ public class Repl implements ServerMessageObserver {
         String msg;
         if (message.getClass() == NotificationMessage.class) {
             msg = ((NotificationMessage) message).getMessage();
+            System.out.println(SET_TEXT_COLOR_RED + msg);
+            printPrompt();
         } else if (message.getClass() == LoadGameMessage.class) {
-            msg = ((LoadGameMessage) message).getGame().toString();
+            client.refreshGame(((LoadGameMessage) message).getGame());
         } else if (message.getClass() == ErrorMessage.class) {
             msg = ((ErrorMessage) message).getMsg();
-        } else {
-            msg = "what";
+            System.out.println(SET_TEXT_COLOR_RED + msg);
+            printPrompt();
         }
-        System.out.println(SET_TEXT_COLOR_RED + msg);
-        printPrompt();
     }
 }

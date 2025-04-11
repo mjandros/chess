@@ -34,6 +34,14 @@ public class ChessClient {
         this.observer = observer;
     }
 
+    public void refreshGame(GameData game) {
+        for (int i : gameNumbers.keySet()) {
+            if (gameNumbers.get(i).gameID() == game.gameID()) {
+                gameNumbers.replace(i, game);
+            }
+        }
+    }
+
     public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
@@ -195,7 +203,7 @@ public class ChessClient {
                     board = setUpBoard("WHITE", game.game().getBoard(), null);
                 }
                 ws.connect(position);
-                return String.format("Successfully joined %s as %s. %s", game.gameName(), position, board);
+                return String.format("Successfully joined %s as %s. \n%s", game.gameName(), position, board);
             } catch (Exception e) {
                 throw new ResponseException(400, "Failed to join game: " + e.getMessage());
             }

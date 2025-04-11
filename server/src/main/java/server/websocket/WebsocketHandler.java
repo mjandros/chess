@@ -81,7 +81,7 @@ public class WebsocketHandler {
             String message = String.format("%s has joined %s as %s.", authData.username(), game.gameName(), position);
             var loadGame = new LoadGameMessage(game);
             var notification = new NotificationMessage(message);
-            //connections.broadcast(authToken, loadGame, "root", game.gameID());
+            connections.broadcast(authToken, loadGame, "root", game.gameID());
             connections.broadcast(authToken, notification, "not root", game.gameID());
         } catch (Exception e) {
             sendError(session, e.getMessage());
@@ -96,16 +96,47 @@ public class WebsocketHandler {
             }
             game.game().makeMove(move);
             gameDAO.updateGame(game.gameID(), game.game());
-            String startPos = String.format("%s%s", ('a' + (move.getStartPosition().getColumn() - 1)), "" + move.getStartPosition().getRow());
-            String endPos = String.format("%s%s", ('a' + (move.getEndPosition().getColumn() - 1)), "" + move.getEndPosition().getRow());
+            System.out.println(numToStr(move.getStartPosition().getColumn()));
+            String startPos = numToStr(move.getStartPosition().getColumn()) + move.getStartPosition().getRow();
+            String endPos = numToStr(move.getEndPosition().getColumn()) + move.getEndPosition().getRow();
             String message = String.format("%s has moved their piece from %s to %s.", authData.username(), startPos, endPos);
             var notification = new NotificationMessage(message);
             var loadGame = new LoadGameMessage(game);
             connections.broadcast(authToken, notification, "not root", game.gameID());
             connections.broadcast(authToken, loadGame, "all", game.gameID());
+            if (game.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                message = "Checkmate. WHITE wins.";
+                var checkNotification = new NotificationMessage(message);
+                connections.broadcast(authToken, checkNotification, "all", game.gameID());
+            } else if (game.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+                message = "Checkmate. BLACK wins.";
+                var checkNotification = new NotificationMessage(message);
+                connections.broadcast(authToken, checkNotification, "all", game.gameID());
+            } else if (game.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+                message = "BLACK is now in check.";
+                var checkNotification = new NotificationMessage(message);
+                connections.broadcast(authToken, checkNotification, "all", game.gameID());
+            } else if (game.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+                message = "WHITE is now in check.";
+                var checkNotification = new NotificationMessage(message);
+                connections.broadcast(authToken, checkNotification, "all", game.gameID());
+            }
         } catch (Exception e) {
             sendError(session, e.getMessage());
         }
+    }
+    private String numToStr(int c) {
+        return switch (c) {
+            case 1 -> "a";
+            case 2 -> "b";
+            case 3 -> "c";
+            case 4 -> "d";
+            case 5 -> "e";
+            case 6 -> "f";
+            case 7 -> "g";
+            case 8 -> "h";
+            default -> "unknown";
+        };
     }
     private boolean isMoveValid(Session session, GameData gameData, ChessMove move, AuthData authData) throws IOException {
         try {
